@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/training">
+
+    <fragment
+        android:id="@+id/training"
+        android:name="pl.wat.nutpromobile.fragments.training.TrainingFragment"
+        android:label="fragment_traingin"
+        tools:layout="@layout/fragment_traingin" />
+    <fragment
+        android:id="@+id/training_history"
+        android:name="pl.wat.nutpromobile.fragments.trainings_history.TrainingsHistoryFragment"
+        android:label="fragment_trainings_history"
+        tools:layout="@layout/fragment_trainings_history" />
+    <fragment
+        android:id="@+id/profile"
+        android:name="pl.wat.nutpromobile.fragments.profile.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+</navigation>

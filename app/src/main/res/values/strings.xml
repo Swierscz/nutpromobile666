@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">NutproMobile</string>
+    <string name="title_training">Trening</string>
+    <string name="title_trainings_history">Historia</string>
+    <string name="title_profile">Profil</string>
+
 </resources>
