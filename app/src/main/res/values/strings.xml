@@ -3,5 +3,9 @@
     <string name="title_training">Trening</string>
     <string name="title_trainings_history">Historia</string>
     <string name="title_profile">Profil</string>
+    <string name="login_title_first_name">Imię</string>
+    <string name="login_title_last_name">Nazwisko</string>
+    <string name="login_title_age">Wiek</string>
+    <string name="login_title_height">Wzrost</string>
 
 </resources>

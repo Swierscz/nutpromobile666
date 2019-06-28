@@ -1,4 +1,4 @@
-package pl.wat.nutpromobile.activity;
+package pl.wat.nutpromobile.activity.main;
 
 import android.os.Bundle;
 
