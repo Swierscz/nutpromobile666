@@ -1,11 +1,7 @@
 package pl.wat.nutpromobile.ble;
 
-
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -15,8 +11,8 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
-import java.util.List;
-import java.util.UUID;
+
+import androidx.lifecycle.LifecycleRegistry;
 
 import pl.wat.nutpromobile.R;
 
@@ -25,6 +21,7 @@ public class Connection {
     private Activity currentActivity;
     private BleScanner bleScanner;
     private BluetoothLeService bluetoothLeService;
+    private CharacteristicManager characteristicManager;
     private String bluetoothAddress;
     private boolean isServiceConnected;
 
@@ -33,8 +30,8 @@ public class Connection {
         initConnection();
     }
 
+    private LifecycleRegistry lifecycleRegistry;
     private BluetoothAdapter bluetoothAdapter;
-
     public BleScanner getBleScanner() {
         return bleScanner;
     }
@@ -45,6 +42,7 @@ public class Connection {
         requestBluetooth();
         bleScanner = new BleScanner(bluetoothAdapter);
         currentActivity.registerReceiver(gattEventsReceiver, makeGattUpdateIntentFilter());
+        characteristicManager = new CharacteristicManager();
         bindBluetoothLeService();
     }
 
@@ -77,11 +75,15 @@ public class Connection {
                 Log.e(TAG, "Bluetooth service cannot be started");
             }
             // Automatically connects to the device upon successful start-up initialization.
+            isServiceConnected = true;
             bluetoothLeService.connect(bluetoothAddress);
+            characteristicManager.bindService(bluetoothLeService);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+            characteristicManager.unbindService();
+            isServiceConnected = false;
             bluetoothLeService = null;
         }
     };
@@ -96,7 +98,7 @@ public class Connection {
                 isServiceConnected = false;
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 Log.i(TAG, "Services discovered");
-                enableNotificationForCharacteristicByUuid("0000ffe1-0000-1000-8000-00805f9b34fb");
+                characteristicManager.enableNotificationOnAllFromConfigFile();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //BluetoothLeService.EXTRA_DATA
                 String s = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
@@ -122,6 +124,8 @@ public class Connection {
             Log.i(TAG, "Connection try started");
             final boolean result = bluetoothLeService.connect(bluetoothAddress);
             Log.i(TAG, "Connect request result=" + result);
+        }else{
+            Log.i(TAG, "Bluetooth service is not available");
         }
     }
 
@@ -142,52 +146,6 @@ public class Connection {
     }
 
 
-    private BluetoothGattCharacteristic currentNotifyCharacteristic = null;
 
-
-    public void enableNotificationForCharacteristicByUuid(String uuid) {
-        enableNotificationForCharacteristic(searchForCharacteristicByUuid(uuid));
-    }
-
-    private BluetoothGattCharacteristic searchForCharacteristicByUuid(String uuid) {
-        BluetoothGattCharacteristic foundCharacteristic = null;
-        List<BluetoothGattService> services = bluetoothLeService.getSupportedGattServices();
-        if (services != null && services.size() != 0) {
-            Log.i(TAG, "Search for charecteristic started");
-            for (BluetoothGattService service : services) {
-                BluetoothGattCharacteristic tempChar = service.getCharacteristic(UUID.fromString(uuid));
-                if (tempChar != null) {
-                    foundCharacteristic = tempChar;
-                }
-
-            }
-        }
-        return foundCharacteristic;
-    }
-
-    private void enableNotificationForCharacteristic(BluetoothGattCharacteristic characteristic) {
-        if (characteristic != null) {
-            final int charaProp = characteristic.getProperties();
-            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                // If there is an active notification on a characteristic, clear
-                // it first so it doesn't update the data field on the user interface.
-                if (currentNotifyCharacteristic != null) {
-                    bluetoothLeService.setCharacteristicNotification(
-                            currentNotifyCharacteristic, false);
-                    currentNotifyCharacteristic = null;
-                }
-                bluetoothLeService.readCharacteristic(characteristic);
-            }
-            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                currentNotifyCharacteristic = characteristic;
-                bluetoothLeService.setCharacteristicNotification(
-                        characteristic, true);
-            }
-        }
-    }
-
-    public void writeCharacteristicByUuid(String uuid, String data) {
-        bluetoothLeService.writeCharacteristic(searchForCharacteristicByUuid(uuid), data);
-    }
 
 }
