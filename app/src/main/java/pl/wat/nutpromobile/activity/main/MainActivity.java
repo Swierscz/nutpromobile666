@@ -6,16 +6,21 @@ import android.os.Bundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.wat.nutpromobile.R;
+import pl.wat.nutpromobile.ble.Connection;
+import pl.wat.nutpromobile.fragments.connection.FragmentConnection;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FragmentConnection.OnFragmentInteractionListener {
 
     @BindView(R.id.navigation)
     BottomNavigationView navigation;
+
+    private Connection connection;
 
     private MainActivityLifecycleObserver mainActivityLifecycleObserver;
 
@@ -29,5 +34,11 @@ public class MainActivity extends AppCompatActivity {
 
         //NavigationUI.setupWithNavController(navigation, Navigation.findNavController(this, R.id.nav_host_fragment));
         NavigationUI.setupWithNavController(navigation, Navigation.findNavController(this, R.id.nav_host_fragment));
+        connection = new Connection(this);
+    }
+
+    @Override
+    public Connection getConnection() {
+        return connection;
     }
 }

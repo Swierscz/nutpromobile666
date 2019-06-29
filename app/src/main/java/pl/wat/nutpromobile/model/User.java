@@ -1,6 +1,7 @@
 package pl.wat.nutpromobile.model;
 
 import lombok.Data;
+import lombok.Getter;
 
 @Data
 public class User {
