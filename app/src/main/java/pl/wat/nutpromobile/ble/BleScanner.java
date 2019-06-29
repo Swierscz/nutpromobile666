@@ -46,10 +46,6 @@ public class BleScanner {
                 listOfDevices.add(new BluetoothDevice(result.getDevice().getName(), result.getDevice().getAddress()));
                 Log.i(TAG, "Found device: " + result.getDevice().getName());
             }
-
-
-
-            //TODO Dorobić liste do extinctow (rzuca cały czas wartosciami)
         }
 
         @Override
@@ -82,12 +78,7 @@ public class BleScanner {
     }
 
     private void startScanForSpecifiedPeriod(long scanPeriod) {
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                stopScan();
-            }
-        }, scanPeriod);
+        handler.postDelayed(this::stopScan, scanPeriod);
         listOfDevices.clear();
         isScanning = true;
         bluetoothLeScanner.startScan(scanCallback);
@@ -98,9 +89,5 @@ public class BleScanner {
         isScanning = false;
         bluetoothLeScanner.stopScan(scanCallback);
         Log.i(TAG, "Device scan stopped");
-    }
-
-    public List<BluetoothDevice> getListOfDevices() {
-        return listOfDevices;
     }
 }

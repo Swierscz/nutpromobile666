@@ -82,7 +82,7 @@ public class FragmentConnection extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_connection, container, false);
-        ButterKnife.bind(view);
+        ButterKnife.bind(this, view);
         return view;
     }
 
@@ -90,12 +90,9 @@ public class FragmentConnection extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.i(TAG, TAG + " view created");
-        devicesRecyclerView = (RecyclerView) view.findViewById(R.id.fragment_connection_recycler_view);
         devicesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.fragment_connection_swipeRefreshLayout);
-        setTestBluetoothDeviceData();
+        viewModel.updateDeviceList(new ArrayList<>());
         defineOnRefreshBehaviour();
-
 
     }
 
@@ -109,7 +106,6 @@ public class FragmentConnection extends Fragment {
 
     private void defineOnRefreshBehaviour() {
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            Toast.makeText(getContext(), "Refresh works good", Toast.LENGTH_SHORT).show();
             fetchBluetoothDevices();
         });
     }
@@ -138,14 +134,12 @@ public class FragmentConnection extends Fragment {
 
                     @Override
                     public void onSuccess(List<BluetoothDevice> bluetoothDevices) {
-                        Log.i(TAG, "Success");
                         viewModel.updateDeviceList(bluetoothDevices);
                         swipeRefreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.i(TAG, "Error");
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 });
