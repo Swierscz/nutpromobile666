@@ -2,5 +2,7 @@
 <resources>
 
     <integer name="request_enable_bluetooth">100</integer>
+    <integer name="request_localization_permissions">101</integer>
+    <integer name="request_settings_permissions">102</integer>
 
 </resources>
