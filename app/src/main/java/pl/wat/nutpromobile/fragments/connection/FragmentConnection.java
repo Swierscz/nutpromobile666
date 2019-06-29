@@ -147,9 +147,8 @@ public class FragmentConnection extends Fragment {
 
 
     private void specifyDevicesListBehaviourAndRefreshData(final List<BluetoothDevice> devices) {
-        DevicesAdapter listAdapter = new DevicesAdapter(devices, (v, pos) ->
-        {
-            Toast.makeText(getContext(), "Device name: " + devices.get(pos).getName(), Toast.LENGTH_SHORT).show();
+        DevicesAdapter listAdapter = new DevicesAdapter(devices, (v, pos) -> {
+            Toast.makeText(FragmentConnection.this.getContext(), "Device name: " + devices.get(pos).getName(), Toast.LENGTH_SHORT).show();
             activityInteraction.getConnection().connectToDevice(devices.get(pos).getAddress());
         });
 

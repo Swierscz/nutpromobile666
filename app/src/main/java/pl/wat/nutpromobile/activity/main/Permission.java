@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 
 import androidx.annotation.NonNull;
@@ -13,15 +14,29 @@ import androidx.core.content.ContextCompat;
 
 import pl.wat.nutpromobile.R;
 
-public class Permission {
+class Permission {
     private MainActivity mainActivity;
 
-    public Permission(MainActivity mainActivity) {
+
+    //https://stackoverflow.com/questions/34040355/how-to-check-the-multiple-permission-at-single-request-in-android-m#
+    //w przypadku implementacji więcej dangerous requestów
+
+    Permission(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
 
 
-    public void startPermissionRequest(){
+
+
+    void startPermissionRequest(){
+        if(Build.VERSION.SDK_INT >= 23){
+            checkPermission();
+        }else{
+
+        }
+    }
+
+    private void checkPermission(){
         if (ContextCompat.checkSelfPermission(
                 mainActivity,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -53,10 +68,9 @@ public class Permission {
     }
 
 
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == mainActivity.getResources().getInteger(R.integer.request_localization_permissions)) {
             // If request is cancelled, the result arrays are empty.
-
             if ((grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 // permission was granted, yay! Do the
                 // contacts-related task you need to do.
