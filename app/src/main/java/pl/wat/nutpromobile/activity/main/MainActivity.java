@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -23,16 +24,18 @@ public class MainActivity extends AppCompatActivity implements FragmentConnectio
     private Connection connection;
 
     private MainActivityLifecycleObserver mainActivityLifecycleObserver;
+    private Permission permission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getLifecycle().addObserver(new MainActivityLifecycleObserver(getLifecycle()));
-
+        permission = new Permission(this);
+        permission.startPermissionRequest();
         ButterKnife.bind(this);
 
-        //NavigationUI.setupWithNavController(navigation, Navigation.findNavController(this, R.id.nav_host_fragment));
+
         NavigationUI.setupWithNavController(navigation, Navigation.findNavController(this, R.id.nav_host_fragment));
         connection = new Connection(this);
     }
@@ -40,5 +43,11 @@ public class MainActivity extends AppCompatActivity implements FragmentConnectio
     @Override
     public Connection getConnection() {
         return connection;
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permission.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
