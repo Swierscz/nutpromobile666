@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     private Connection connection;
 
     private MainActivityLifecycleObserver mainActivityLifecycleObserver;
+
     private Permission permission;
 
     private TrainingServiceHelper trainingServiceHelper;
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         intent.putExtra(TrainingService.NOTIFICATION, trainingServiceHelper.buildNotification());
 
         startService(intent);
-        if (trainingService != null) {
+        if (trainingService == null) {
             bindService(new Intent(this,
                     TrainingService.class), mConnection, Context.BIND_AUTO_CREATE);
         }
@@ -83,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     public void stopTraining() {
         System.out.println("Activity STOP Click");
         Intent intent = new Intent(this, TrainingService.class);
+        unbindService(mConnection);
+        trainingService = null;
         stopService(intent);
     }
 
@@ -91,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             TrainingService.LocalBinder binder = (TrainingService.LocalBinder) iBinder;
             trainingService = binder.getService();
+            trainingService.handleTraining(connection);
         }
 
         @Override
@@ -99,6 +103,14 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         }
     };
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (trainingService != null) {
+            // Detach the service connection.
+            unbindService(mConnection);
+        }
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
