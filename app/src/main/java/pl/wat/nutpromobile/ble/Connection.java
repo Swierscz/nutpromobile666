@@ -102,6 +102,7 @@ public class Connection {
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //BluetoothLeService.EXTRA_DATA
                 String s = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
+                //System.out.println("Received data is: " + s);
                 Log.i(TAG, "Received data is: " + s);
                 Log.i(TAG, "Breakpoint");
             }
@@ -145,7 +146,7 @@ public class Connection {
         currentActivity.unregisterReceiver(gattEventsReceiver);
     }
 
-
-
-
+    public void sendCommand(String command) {
+        characteristicManager.writeCharacteristicByUuid("0000ffe1-0000-1000-8000-00805f9b34fb", command);
+    }
 }

@@ -29,6 +29,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import pl.wat.nutpromobile.R;
+import pl.wat.nutpromobile.activity.OnFragmentInteractionListener;
 import pl.wat.nutpromobile.ble.Connection;
 import pl.wat.nutpromobile.ble.DevicesAdapter;
 import pl.wat.nutpromobile.model.BluetoothDevice;
@@ -46,10 +47,6 @@ public class FragmentConnection extends Fragment {
 
     public FragmentConnection() {
         // Required empty public constructor
-    }
-
-    public interface OnFragmentInteractionListener {
-        Connection getConnection();
     }
 
 
