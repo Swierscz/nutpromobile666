@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -41,6 +43,8 @@ public class FragmentConnection extends Fragment {
     @BindView(R.id.fragment_connection_recycler_view)
     RecyclerView devicesRecyclerView;
     private OnFragmentInteractionListener activityInteraction;
+    @BindView( R.id.switch1)
+    public Switch aSwitch;
 
     private FragmentConnectionViewModel viewModel;
 
@@ -50,6 +54,7 @@ public class FragmentConnection extends Fragment {
 
     public interface OnFragmentInteractionListener {
         Connection getConnection();
+        void changeDark(boolean isDark);
     }
 
 
@@ -93,7 +98,16 @@ public class FragmentConnection extends Fragment {
         devicesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         viewModel.updateDeviceList(new ArrayList<>());
         defineOnRefreshBehaviour();
-
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    activityInteraction.changeDark(true);
+                }else{
+                    activityInteraction.changeDark(false);
+                }
+            }
+        });
     }
 
     private void setTestBluetoothDeviceData() {
@@ -148,8 +162,12 @@ public class FragmentConnection extends Fragment {
 
     private void specifyDevicesListBehaviourAndRefreshData(final List<BluetoothDevice> devices) {
         DevicesAdapter listAdapter = new DevicesAdapter(devices, (v, pos) -> {
+            if(devices.size()>0){
             Toast.makeText(FragmentConnection.this.getContext(), "Device name: " + devices.get(pos).getName(), Toast.LENGTH_SHORT).show();
             activityInteraction.getConnection().connectToDevice(devices.get(pos).getAddress());
+            }else{
+                Toast.makeText(getContext(), "Please pull to refresh data", Toast.LENGTH_SHORT).show();
+            }
         });
 
         devicesRecyclerView.setAdapter(listAdapter);

@@ -7,6 +7,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements FragmentConnectio
         permission = new Permission(this);
         permission.startPermissionRequest();
         ButterKnife.bind(this);
-
+//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
         NavigationUI.setupWithNavController(navigation, Navigation.findNavController(this, R.id.nav_host_fragment));
         connection = new Connection(this);
@@ -43,6 +44,14 @@ public class MainActivity extends AppCompatActivity implements FragmentConnectio
     @Override
     public Connection getConnection() {
         return connection;
+    }
+
+    @Override
+    public void changeDark(boolean isDark) {
+        if (isDark)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
 

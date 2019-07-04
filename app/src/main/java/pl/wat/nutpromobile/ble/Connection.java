@@ -102,7 +102,7 @@ public class Connection {
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //BluetoothLeService.EXTRA_DATA
                 String s = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
-                Log.i(TAG, "Received data is: " + s);
+                Log.i(TAG, "Received data is: \n" + s);
                 Log.i(TAG, "Breakpoint");
             }
         }
