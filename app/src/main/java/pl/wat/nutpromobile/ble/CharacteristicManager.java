@@ -13,11 +13,11 @@ public class CharacteristicManager {
     private BluetoothLeService bluetoothLeService;
 
 
-    public void bindService(BluetoothLeService bluetoothLeService){
+    public void attachService(BluetoothLeService bluetoothLeService){
         this.bluetoothLeService = bluetoothLeService;
     }
 
-    public void unbindService(){
+    public void detachService(){
         this.bluetoothLeService = null;
     }
 

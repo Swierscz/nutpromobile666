@@ -12,26 +12,31 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
-import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import pl.wat.nutpromobile.R;
 
-public class Connection {
-    private final static String TAG = Connection.class.getSimpleName();
+public class Connection implements LifecycleObserver {
+    private final static String TAG = "Custom: " + Connection.class.getSimpleName();
     private Activity currentActivity;
     private BleScanner bleScanner;
     private BluetoothLeService bluetoothLeService;
     private CharacteristicManager characteristicManager;
     private String bluetoothAddress;
     private boolean isServiceConnected;
+    private boolean isServiceBound = false;
+    private Lifecycle lifecycle;
 
-    public Connection(Activity activity) {
+    public Connection(Activity activity, Lifecycle lifecycle) {
         currentActivity = activity;
+        this.lifecycle = lifecycle;
         initConnection();
     }
 
-    private LifecycleRegistry lifecycleRegistry;
     private BluetoothAdapter bluetoothAdapter;
+
     public BleScanner getBleScanner() {
         return bleScanner;
     }
@@ -43,7 +48,8 @@ public class Connection {
         bleScanner = new BleScanner(bluetoothAdapter);
         currentActivity.registerReceiver(gattEventsReceiver, makeGattUpdateIntentFilter());
         characteristicManager = new CharacteristicManager();
-        bindBluetoothLeService();
+        startServiceAsForeground();
+        Log.i(TAG, "Connection initialization has finished");
     }
 
     private void initializeBluetoothAdapter() {
@@ -59,9 +65,28 @@ public class Connection {
         }
     }
 
+    private void startServiceAsForeground() {
+        if (!BluetoothLeService.IS_STARTED) {
+            currentActivity.startService(new Intent(currentActivity, BluetoothLeService.class));
+        }
+    }
+
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private void bindBluetoothLeService() {
+        currentActivity.registerReceiver(gattEventsReceiver, makeGattUpdateIntentFilter());
         Intent gattServiceIntent = new Intent(currentActivity, BluetoothLeService.class);
-        currentActivity.bindService(gattServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        currentActivity.bindService(gattServiceIntent, serviceConnection, 0);
+        isServiceBound = true;
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    private void unBindBluetoothLeService() {
+        if (isServiceBound) {
+            currentActivity.unbindService(serviceConnection);
+        }
+        currentActivity.unregisterReceiver(gattEventsReceiver);
+
     }
 
 
@@ -69,6 +94,7 @@ public class Connection {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
+            Log.i(TAG, BluetoothLeService.class.getSimpleName() + " connected");
             bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!bluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
@@ -76,13 +102,13 @@ public class Connection {
             }
             // Automatically connects to the device upon successful start-up initialization.
             isServiceConnected = true;
-            bluetoothLeService.connect(bluetoothAddress);
-            characteristicManager.bindService(bluetoothLeService);
+            characteristicManager.attachService(bluetoothLeService);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            characteristicManager.unbindService();
+            Log.i(TAG, BluetoothLeService.class.getSimpleName() + " disconnected");
+            characteristicManager.detachService();
             isServiceConnected = false;
             bluetoothLeService = null;
         }
@@ -102,7 +128,7 @@ public class Connection {
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //BluetoothLeService.EXTRA_DATA
                 String s = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
-                Log.i(TAG, "Received data is: \n" + s);
+                Log.i(TAG, "Received data is:\n " + s);
                 Log.i(TAG, "Breakpoint");
             }
         }
@@ -124,7 +150,7 @@ public class Connection {
             Log.i(TAG, "Connection try started");
             final boolean result = bluetoothLeService.connect(bluetoothAddress);
             Log.i(TAG, "Connect request result=" + result);
-        }else{
+        } else {
             Log.i(TAG, "Bluetooth service is not available");
         }
     }
@@ -145,7 +171,7 @@ public class Connection {
         currentActivity.unregisterReceiver(gattEventsReceiver);
     }
 
-
-
-
+    public void sendCommand(String command) {
+        characteristicManager.writeCharacteristicByUuid("0000ffe1-0000-1000-8000-00805f9b34fb", command);
+    }
 }

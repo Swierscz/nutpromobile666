@@ -35,7 +35,6 @@ import pl.wat.nutpromobile.ble.Connection;
 import pl.wat.nutpromobile.ble.DevicesAdapter;
 import pl.wat.nutpromobile.model.BluetoothDevice;
 
-//W przypadku rozbudowy klasy dostosować do modelu MVP
 public class FragmentConnection extends Fragment {
     public static final String TAG = FragmentConnection.class.getSimpleName();
     @BindView(R.id.fragment_connection_swipeRefreshLayout)
@@ -43,8 +42,6 @@ public class FragmentConnection extends Fragment {
     @BindView(R.id.fragment_connection_recycler_view)
     RecyclerView devicesRecyclerView;
     private OnFragmentInteractionListener activityInteraction;
-    @BindView( R.id.switch1)
-    public Switch aSwitch;
 
     private FragmentConnectionViewModel viewModel;
 
@@ -54,7 +51,6 @@ public class FragmentConnection extends Fragment {
 
     public interface OnFragmentInteractionListener {
         Connection getConnection();
-        void changeDark(boolean isDark);
     }
 
 
@@ -98,16 +94,6 @@ public class FragmentConnection extends Fragment {
         devicesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         viewModel.updateDeviceList(new ArrayList<>());
         defineOnRefreshBehaviour();
-        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    activityInteraction.changeDark(true);
-                }else{
-                    activityInteraction.changeDark(false);
-                }
-            }
-        });
     }
 
     private void setTestBluetoothDeviceData() {
@@ -135,6 +121,7 @@ public class FragmentConnection extends Fragment {
     }
 
     private void fetchBluetoothDevices() {
+        Toast.makeText(getContext(), "Bluetooth devices fetching started", Toast.LENGTH_SHORT).show();
         Single<List<BluetoothDevice>> deviceSingle = Single.fromCallable(() ->
                 activityInteraction.getConnection().getBleScanner().scanForDevices());
 
@@ -150,11 +137,17 @@ public class FragmentConnection extends Fragment {
                     public void onSuccess(List<BluetoothDevice> bluetoothDevices) {
                         viewModel.updateDeviceList(bluetoothDevices);
                         swipeRefreshLayout.setRefreshing(false);
+                        String toastText = "Bluetooth devices fetching finished.";
+                        if(bluetoothDevices.size() == 0)
+                            Toast.makeText(getContext(), toastText + " There is no devices nearby.", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(getContext(), toastText, Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(getContext(), "Cannot fetch bluetooth devices", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

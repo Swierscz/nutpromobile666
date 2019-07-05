@@ -15,6 +15,21 @@
     <color name="colorPrimaryDark">#3f0099</color>
     <color name="colorTextColor">#000</color>
 
+    <color name="NcolorPrimary">#BB86FC</color>
+    <color name="NcolorPrimaryVariant">#3700B3</color>
+    <color name="NcolorSecondary">#03DAC6</color>
+    <color name="NcolorSecondaryVariant">#03DAC6</color>
+    <color name="NcolorBackground">#121212</color>
+    <color name="NcolorSurface">#121212</color>
+    <color name="NcolorError">#CF6679</color>
+    <color name="NcolorOnPrimary">#000</color>
+    <color name="NcolorOnSecondary">#000</color>
+    <color name="NcolorOnBackground">#FFF</color>
+    <color name="NcolorOnSurface">#FFF</color>
+    <color name="NcolorOnError">#000</color>
+    <color name="NcolorPrimaryDark">#a861ff</color>
+    <color name="NcolorTextColor">#000</color>
+
 
 
     <color name="splashBackground">#DAF3F3F3</color>

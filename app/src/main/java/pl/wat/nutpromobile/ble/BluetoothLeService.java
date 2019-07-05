@@ -1,6 +1,7 @@
 package pl.wat.nutpromobile.ble;
 
 
+import android.app.Notification;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -10,22 +11,27 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
+
+import pl.wat.nutpromobile.NotificationCreator;
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
  */
 public class BluetoothLeService extends Service {
-    private final static String TAG = BluetoothLeService.class.getSimpleName();
+    private final static String TAG = "Custom: " + BluetoothLeService.class.getSimpleName();
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -37,6 +43,8 @@ public class BluetoothLeService extends Service {
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
 
+
+    public final static String STOP_SERVICE = "stop_bluetooth_le_service";
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
@@ -48,6 +56,22 @@ public class BluetoothLeService extends Service {
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
 
+    public static final int BLE_SERVICE_ID = 10202;
+    public static boolean IS_STARTED = false;
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if ("stop".equals(intent.getAction())) {
+            Log.d(TAG, "called to cancel service");
+            stopSelf();
+        } else {
+            Log.i(TAG, TAG + " foreground started");
+            startForeground(NotificationCreator.getNotificationId(), NotificationCreator.getNotification(getApplicationContext()));
+            IS_STARTED = true;
+        }
+        return START_STICKY;
+    }
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -133,7 +157,7 @@ public class BluetoothLeService extends Service {
                     stringBuilder2.append((char) (byteChar & 0xFF) + " | ");
 
                 }
-                intent.putExtra(EXTRA_DATA,"data: " +  new String(data) + "\n" + "interpretation: " + stringBuilder.toString());
+                intent.putExtra(EXTRA_DATA, "data: " + new String(data) + "\n" + "interpretation: " + stringBuilder.toString());
 
             }
 
@@ -318,5 +342,12 @@ public class BluetoothLeService extends Service {
     public List<BluetoothGattService> getSupportedGattServices() {
         if (mBluetoothGatt == null) return null;
         return mBluetoothGatt.getServices();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, TAG + " destroyed");
+        IS_STARTED = false;
     }
 }
