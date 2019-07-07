@@ -6,20 +6,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.activity.OnFragmentInteractionListener;
 import pl.wat.nutpromobile.fragments.connection.FragmentConnection;
-import pl.wat.nutpromobile.fragments.connection.FragmentConnectionViewModel;
 
 
 /**
@@ -28,7 +24,7 @@ import pl.wat.nutpromobile.fragments.connection.FragmentConnectionViewModel;
 public class TrainingFragment extends Fragment {
     public static final String TAG = FragmentConnection.class.getSimpleName();
 
-    private OnFragmentInteractionListener activityInteraction;
+    private OnTrainingFragmentInteractionListener activityInteraction;
 
     private TrainingFragmentViewModel viewModel;
 
@@ -53,11 +49,11 @@ public class TrainingFragment extends Fragment {
     }
 
     private void onCreateInit() {
-        if (getContext() instanceof OnFragmentInteractionListener) {
-            activityInteraction = (OnFragmentInteractionListener) getContext();
+        if (getContext() instanceof OnTrainingFragmentInteractionListener) {
+            activityInteraction = (OnTrainingFragmentInteractionListener) getContext();
         } else {
             throw new RuntimeException(getContext().toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnTrainingFragmentInteractionListener");
         }
         Log.i(TAG, TAG + " creation started");
 

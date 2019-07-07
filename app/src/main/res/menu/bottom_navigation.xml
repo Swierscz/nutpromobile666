@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="connection" />
     <item
         android:id="@+id/training"
+        android:icon="@drawable/ic_bottom_nav_training"
         android:title="@string/title_training" />
 
     <item
         android:id="@+id/training_history"
+        android:icon="@drawable/ic_bottom_nav_history"
         android:title="@string/title_trainings_history" />
 
     <item
         android:id="@+id/profile"
+        android:icon="@drawable/ic_bottom_nav_profile"
         android:title="@string/title_profile" />
+
+    <item
+        android:id="@+id/more"
+        android:icon="@drawable/ic_bottom_nav_history_more"
+        android:title="@string/title_more" />
 </menu>

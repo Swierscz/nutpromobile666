@@ -29,8 +29,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.activity.OnFragmentInteractionListener;
-import pl.wat.nutpromobile.ble.Connection;
 import pl.wat.nutpromobile.ble.DevicesAdapter;
 import pl.wat.nutpromobile.model.BluetoothDevice;
 
@@ -41,7 +39,7 @@ public class FragmentConnection extends Fragment {
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.fragment_connection_recycler_view)
     RecyclerView devicesRecyclerView;
-    private OnFragmentInteractionListener activityInteraction;
+    private OnConnectionFragmentInteractionListener activityInteraction;
 
     private FragmentConnectionViewModel viewModel;
 
@@ -57,11 +55,11 @@ public class FragmentConnection extends Fragment {
     }
 
     private void onCreateInit() {
-        if (getContext() instanceof OnFragmentInteractionListener) {
-            activityInteraction = (OnFragmentInteractionListener) getContext();
+        if (getContext() instanceof OnConnectionFragmentInteractionListener) {
+            activityInteraction = (OnConnectionFragmentInteractionListener) getContext();
         } else {
             throw new RuntimeException(getContext().toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnConnectionFragmentInteractionListener");
         }
         Log.i(TAG, TAG + " creation started");
 

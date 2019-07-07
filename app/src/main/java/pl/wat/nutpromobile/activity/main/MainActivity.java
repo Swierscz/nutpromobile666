@@ -12,18 +12,20 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.activity.OnFragmentInteractionListener;
 import pl.wat.nutpromobile.ble.Connection;
+import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
+import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
 import pl.wat.nutpromobile.training.TrainingService;
 import pl.wat.nutpromobile.training.TrainingServiceHelper;
 
-public class MainActivity extends AppCompatActivity implements OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener, OnTrainingFragmentInteractionListener {
+
+    public static final String INTENT_FIRST_LAUNCH = "pl.wat.nutpromobile.MainActivity.FIRST_LAUNCH";
 
     @BindView(R.id.navigation)
     BottomNavigationView navigation;
@@ -49,8 +51,9 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
         trainingServiceHelper = new TrainingServiceHelper(this);
 
-        NavigationUI.setupWithNavController(navigation, Navigation.findNavController(this, R.id.nav_host_fragment));
         connection = new Connection(this);
+
+        setupNavigation();
     }
 
     @Override
@@ -115,5 +118,18 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permission.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void setupNavigation() {
+        NavigationUI.setupWithNavController(navigation, Navigation.findNavController(this, R.id.nav_host_fragment));
+        checkIfIsFirstLauch();
+    }
+
+    private void checkIfIsFirstLauch() {
+        Intent intent = getIntent();
+        Boolean firstLunch = intent.getBooleanExtra(MainActivity.INTENT_FIRST_LAUNCH, true);
+        if (firstLunch) {
+            Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.connection);
+        }
     }
 }

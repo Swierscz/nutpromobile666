@@ -103,7 +103,7 @@ class Permission {
     }
 
     private void createPermissionExplanationDialogAfterNeverAskAgain() {
-        final int settingsPermissionCode = mainActivity.getResources().getInteger(R.integer.request_settings_permissions);
+        final int settingsPermissionCode = mainActivity.getResources().getInteger(R.integer.request_setting_permissions);
         createPermissionDialog("You've previously check never ask again button for some permission, you must change app preferences in settings"
                 , () -> {
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
