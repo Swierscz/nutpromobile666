@@ -31,7 +31,7 @@ import pl.wat.nutpromobile.NotificationCreator;
  * given Bluetooth LE device.
  */
 public class BluetoothLeService extends Service {
-    private final static String TAG = "Custom: " + BluetoothLeService.class.getSimpleName();
+    private final static String TAG = BluetoothLeService.class.getSimpleName();
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -123,11 +123,11 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-            if (status == BluetoothGatt.GATT_SUCCESS) {
+            if(status == BluetoothGatt.GATT_SUCCESS){
                 Log.i(TAG, "Characteristic write succed");
-            } else if (status == BluetoothGatt.GATT_FAILURE) {
+            }else if(status == BluetoothGatt.GATT_FAILURE){
                 Log.i(TAG, "Characteristic write failed");
-            } else {
+            }else{
                 Log.i(TAG, "Something bad happen during characteristic write");
             }
         }
@@ -137,13 +137,12 @@ public class BluetoothLeService extends Service {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
     }
-
-    private int counter = 0;
+private int counter = 0;
 
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         counter++;
-        if (counter > 50) {
+        if(counter > 50){
             counter = 0;
             final Intent intent = new Intent(action);
 
@@ -216,6 +215,7 @@ public class BluetoothLeService extends Service {
      */
 
 //endregion
+
     public boolean initialize() {
         // For API level 18 and above, get a reference to BluetoothAdapter through
         // BluetoothManager.
@@ -240,10 +240,11 @@ public class BluetoothLeService extends Service {
      * Connects to the GATT server hosted on the Bluetooth LE device.
      *
      * @param address The device address of the destination device.
+     *
      * @return Return true if the connection is initiated successfully. The connection result
-     * is reported asynchronously through the
-     * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     * callback.
+     *         is reported asynchronously through the
+     *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
+     *         callback.
      */
     public boolean connect(final String address) {
         if (mBluetoothAdapter == null || address == null) {
@@ -322,7 +323,7 @@ public class BluetoothLeService extends Service {
      * Enables or disables notification on a give characteristic.
      *
      * @param characteristic Characteristic to act on.
-     * @param enabled        If true, enable notification.  False otherwise.
+     * @param enabled If true, enable notification.  False otherwise.
      */
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {

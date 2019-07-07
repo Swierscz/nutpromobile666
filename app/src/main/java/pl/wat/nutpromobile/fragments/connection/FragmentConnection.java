@@ -31,7 +31,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.ble.Connection;
 import pl.wat.nutpromobile.ble.DevicesAdapter;
 import pl.wat.nutpromobile.model.BluetoothDevice;
 
@@ -41,16 +40,12 @@ public class FragmentConnection extends Fragment {
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.fragment_connection_recycler_view)
     RecyclerView devicesRecyclerView;
-    private OnFragmentInteractionListener activityInteraction;
+    private OnConnectionFragmentInteractionListener activityInteraction;
 
     private FragmentConnectionViewModel viewModel;
 
     public FragmentConnection() {
         // Required empty public constructor
-    }
-
-    public interface OnFragmentInteractionListener {
-        Connection getConnection();
     }
 
 
@@ -61,11 +56,11 @@ public class FragmentConnection extends Fragment {
     }
 
     private void onCreateInit() {
-        if (getContext() instanceof OnFragmentInteractionListener) {
-            activityInteraction = (OnFragmentInteractionListener) getContext();
+        if (getContext() instanceof OnConnectionFragmentInteractionListener) {
+            activityInteraction = (OnConnectionFragmentInteractionListener) getContext();
         } else {
             throw new RuntimeException(getContext().toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnConnectionFragmentInteractionListener");
         }
         Log.i(TAG, TAG + " creation started");
 
@@ -94,6 +89,7 @@ public class FragmentConnection extends Fragment {
         devicesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         viewModel.updateDeviceList(new ArrayList<>());
         defineOnRefreshBehaviour();
+
     }
 
     private void setTestBluetoothDeviceData() {
@@ -154,6 +150,8 @@ public class FragmentConnection extends Fragment {
 
 
     private void specifyDevicesListBehaviourAndRefreshData(final List<BluetoothDevice> devices) {
+        DevicesAdapter listAdapter = new DevicesAdapter(devices, (v, pos) -> {
+            Toast.makeText(FragmentConnection.this.getContext(), "Device name: " + devices.get(pos).getName(), Toast.LENGTH_SHORT).show();
         DevicesAdapter listAdapter = new DevicesAdapter(devices, (v, pos) -> {
             if(devices.size()>0){
             Toast.makeText(FragmentConnection.this.getContext(), "Device name: " + devices.get(pos).getName(), Toast.LENGTH_SHORT).show();

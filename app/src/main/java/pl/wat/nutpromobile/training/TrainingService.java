@@ -18,7 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-import pl.wat.nutpromobile.NotificationCreator;
 import pl.wat.nutpromobile.ble.BluetoothLeService;
 import pl.wat.nutpromobile.ble.Connection;
 
@@ -58,7 +57,7 @@ public class TrainingService extends Service {
         mBinder = new LocalBinder();
         context = getBaseContext();
         Notification notification = intent.getExtras().getParcelable(NOTIFICATION);
-        startForeground(TRAINING_SERVICE_ID, NotificationCreator.getNotification(getApplicationContext()));
+        startForeground(TRAINING_SERVICE_ID, notification);
         return START_STICKY;
     }
 

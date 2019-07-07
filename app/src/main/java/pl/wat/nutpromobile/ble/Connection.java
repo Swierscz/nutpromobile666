@@ -36,7 +36,6 @@ public class Connection implements LifecycleObserver {
     }
 
     private BluetoothAdapter bluetoothAdapter;
-
     public BleScanner getBleScanner() {
         return bleScanner;
     }

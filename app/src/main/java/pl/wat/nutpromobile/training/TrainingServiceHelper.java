@@ -8,7 +8,7 @@ import androidx.core.app.NotificationCompat;
 import pl.wat.nutpromobile.R;
 
 public class TrainingServiceHelper {
-    public static final String NOTIFICATION_CHANNEL_ID = "training_service_channel";
+    private static final String NOTIFICATION_CHANNEL_ID = "training_service_channel";
 
     private Context context;
 

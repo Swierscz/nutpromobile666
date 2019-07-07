@@ -3,9 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/connection">
-
-
+    app:startDestination="@+id/training">
 
     <fragment
         android:id="@+id/training"
@@ -34,4 +32,10 @@
         android:name="pl.wat.nutpromobile.fragments.connection.FragmentConnection"
         android:label="fragment_connection"
         tools:layout="@layout/fragment_connection" />
+
+    <fragment
+        android:id="@+id/more"
+        android:name="pl.wat.nutpromobile.fragments.more.MoreFragment"
+        android:label="fragment_connection"
+        tools:layout="@layout/fragment_more" />
 </navigation>
