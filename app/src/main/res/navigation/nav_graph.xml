@@ -37,5 +37,12 @@
         android:id="@+id/more"
         android:name="pl.wat.nutpromobile.fragments.more.MoreFragment"
         android:label="fragment_connection"
-        tools:layout="@layout/fragment_more" />
+        tools:layout="@layout/fragment_more" >
+        <action
+            android:id="@+id/action_more_to_settings"
+            app:destination="@id/settings" />
+        <action
+            android:id="@+id/action_more_to_connection"
+            app:destination="@id/connection" />
+    </fragment>
 </navigation>

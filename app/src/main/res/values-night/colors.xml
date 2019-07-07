@@ -14,7 +14,7 @@
     <color name="colorOnError">#000</color>
     <color name="colorPrimaryDark">#a861ff</color>
     <color name="colorTextColor">#FFF</color>
-
+    <color name="cardBackground">#c7c7c7</color>
 
 
     <color name="splashBackground">#DAF3F3F3</color>

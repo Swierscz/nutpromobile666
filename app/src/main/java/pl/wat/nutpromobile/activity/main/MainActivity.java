@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -25,7 +27,8 @@ import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListe
 import pl.wat.nutpromobile.training.TrainingService;
 import pl.wat.nutpromobile.training.TrainingServiceHelper;
 
-public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener, OnTrainingFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener,
+        OnTrainingFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener {
     public final static String TAG = "Custom: " + MainActivity.class.getSimpleName();
     public static final String INTENT_FIRST_LAUNCH = "pl.wat.nutpromobile.MainActivity.FIRST_LAUNCH";
 
@@ -64,6 +67,15 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
             bindService(new Intent(this,
                     TrainingService.class), mConnection, Context.BIND_AUTO_CREATE);
         }
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -135,4 +147,8 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
         permission.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        preferencesManager.setChangePreferencesBehaviours(sharedPreferences, key);
+    }
 }

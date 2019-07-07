@@ -19,7 +19,6 @@ class PreferencesManager {
     private void startPrefManage(){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity.getApplicationContext());
         initialization(sharedPreferences);
-        specifyBehaviour(sharedPreferences);
     }
 
     private void initialization(SharedPreferences sharedPreferences){
@@ -28,15 +27,12 @@ class PreferencesManager {
         changeAppThemeToDarkMode(isDarkMode);
     }
 
-    private void specifyBehaviour(SharedPreferences sharedPreferences){
-        sharedPreferences.registerOnSharedPreferenceChangeListener((sharedPreferences1, key) -> {
-
-            if(key.equals("dark_mode_key")){
-                Log.i(TAG, "Change dark mode theme triggered by user");
-                boolean isDarkMode = sharedPreferences1.getBoolean("dark_mode_key", true);
-                changeAppThemeToDarkMode(isDarkMode);
-            }
-        });
+    void setChangePreferencesBehaviours(SharedPreferences sharedPreferences, String key){
+        if(key.equals("dark_mode_key")){
+            Log.i(TAG, "Change dark mode theme triggered by user");
+            boolean isDarkMode = sharedPreferences.getBoolean("dark_mode_key", true);
+            changeAppThemeToDarkMode(isDarkMode);
+        }
     }
 
     private void changeAppThemeToDarkMode(boolean isDarkMode){
