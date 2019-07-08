@@ -1,4 +1,4 @@
-package pl.wat.nutpromobile.training;
+package pl.wat.nutpromobile.features.training;
 
 import android.app.Notification;
 import android.content.Context;

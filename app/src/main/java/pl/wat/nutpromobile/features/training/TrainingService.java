@@ -1,4 +1,4 @@
-package pl.wat.nutpromobile.training;
+package pl.wat.nutpromobile.features.training;
 
 import android.app.Notification;
 import android.app.Service;
@@ -18,9 +18,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-import pl.wat.nutpromobile.NotificationCreator;
-import pl.wat.nutpromobile.ble.BluetoothLeService;
-import pl.wat.nutpromobile.ble.Connection;
+import pl.wat.nutpromobile.util.NotificationCreator;
+import pl.wat.nutpromobile.features.ble.BluetoothLeService;
+import pl.wat.nutpromobile.features.ble.Connection;
 
 public class TrainingService extends Service {
 

@@ -1,4 +1,4 @@
-package pl.wat.nutpromobile.ble;
+package pl.wat.nutpromobile.features.ble;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.BluetoothLeScanner;

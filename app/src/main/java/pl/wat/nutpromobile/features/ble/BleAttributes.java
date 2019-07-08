@@ -1,4 +1,4 @@
-package pl.wat.nutpromobile.ble;
+package pl.wat.nutpromobile.features.ble;
 
 public class BleAttributes {
     //TODO Przeprowadzić testy dla wielu charakterystyk wysyłanych z urządzeń

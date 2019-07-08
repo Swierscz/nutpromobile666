@@ -1,7 +1,6 @@
-package pl.wat.nutpromobile.ble;
+package pl.wat.nutpromobile.features.ble;
 
 
-import android.app.Notification;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,20 +10,17 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
-import pl.wat.nutpromobile.NotificationCreator;
+import pl.wat.nutpromobile.util.NotificationCreator;
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
@@ -137,13 +133,9 @@ public class BluetoothLeService extends Service {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
     }
-private int counter = 0;
 
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
-        counter++;
-        if(counter > 50){
-            counter = 0;
             final Intent intent = new Intent(action);
 
             // For all other profiles, writes the data formatted in HEX.
@@ -161,7 +153,6 @@ private int counter = 0;
             }
 
             sendBroadcast(intent);
-        }
 
     }
 

@@ -19,13 +19,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import pl.wat.nutpromobile.NotificationCreator;
+import pl.wat.nutpromobile.util.NotificationCreator;
 import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.ble.Connection;
+import pl.wat.nutpromobile.features.ble.Connection;
 import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
 import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
-import pl.wat.nutpromobile.training.TrainingService;
-import pl.wat.nutpromobile.training.TrainingServiceHelper;
+import pl.wat.nutpromobile.features.training.TrainingService;
+import pl.wat.nutpromobile.features.training.TrainingServiceHelper;
 
 public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener,
         OnTrainingFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener {

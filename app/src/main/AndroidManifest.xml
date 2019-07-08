@@ -34,8 +34,9 @@
         </activity>
         <activity android:name=".activity.login.LoginActivity" />
         <activity android:name=".activity.main.MainActivity" />
-        <service android:name=".ble.BluetoothLeService" />
-        <service android:name=".training.TrainingService" />
+        <service android:name=".features.ble.BluetoothLeService" />
+        <service android:name=".features.training.TrainingService" />
+        <service android:name=".features.location.UserLocationService" />
     </application>
 
 </manifest>

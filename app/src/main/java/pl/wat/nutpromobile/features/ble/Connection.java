@@ -1,4 +1,4 @@
-package pl.wat.nutpromobile.ble;
+package pl.wat.nutpromobile.features.ble;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
