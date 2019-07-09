@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/training_history"
-        android:name="pl.wat.nutpromobile.fragments.trainings_history.TrainingsHistoryFragment"
+        android:name="pl.wat.nutpromobile.fragments.trainingsHistory.TrainingsHistoryFragment"
         android:label="fragment_trainings_history"
         tools:layout="@layout/fragment_trainings_history" />
     <fragment

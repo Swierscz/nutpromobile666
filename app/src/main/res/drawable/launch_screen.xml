@@ -13,7 +13,7 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/logo"/>
+            android:src="@drawable/nutpro_splash_logo"/>
     </item>
 
 

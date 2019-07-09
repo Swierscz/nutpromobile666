@@ -1,4 +1,4 @@
-package pl.wat.nutpromobile.ble;
+package pl.wat.nutpromobile.features.ble;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -125,10 +125,9 @@ public class Connection implements LifecycleObserver {
                 Log.i(TAG, "Services discovered");
                 characteristicManager.enableNotificationOnAllFromConfigFile();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                //BluetoothLeService.EXTRA_DATA
                 String s = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
-                Log.i(TAG, "Received data is:\n " + s);
-                Log.i(TAG, "Breakpoint");
+                //Log.i(TAG, "Received data is:\n " + s);
+                //Log.i(TAG, "Breakpoint");
             }
         }
     };
@@ -164,6 +163,14 @@ public class Connection implements LifecycleObserver {
             final boolean result = bluetoothLeService.connect(bluetoothAddress);
             Log.i(TAG, "Connect request result=" + result);
         }
+    }
+
+    public void addConnectionListener(ConnectionListener connectionListener) {
+        bluetoothLeService.addConnectionListener(connectionListener);
+    }
+
+    public void removeConnectionListener() {
+        bluetoothLeService.removeConnectionListener();
     }
 
     public void pauseConnection() {

@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.ble.DevicesAdapter;
 
 public class MoreElementsAdapter extends RecyclerView.Adapter<MoreElementsAdapter.MyViewHolder> {
 
@@ -27,8 +26,8 @@ public class MoreElementsAdapter extends RecyclerView.Adapter<MoreElementsAdapte
     @NonNull
     @Override
     public MoreElementsAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new MoreElementsAdapter.MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(
-                    R.layout.more_elements_list, parent, false));
+        return new MoreElementsAdapter.MyViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+                R.layout.more_elements_list, parent, false));
     }
 
     @Override
@@ -57,7 +56,7 @@ public class MoreElementsAdapter extends RecyclerView.Adapter<MoreElementsAdapte
         return moreElements.get(pos);
     }
 
-    public interface ClickListener{
+    public interface ClickListener {
         void onClick(View v, Integer pos);
     }
 }

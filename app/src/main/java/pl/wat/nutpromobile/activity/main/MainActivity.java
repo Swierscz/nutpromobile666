@@ -1,7 +1,6 @@
 package pl.wat.nutpromobile.activity.main;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -19,16 +18,19 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import pl.wat.nutpromobile.NotificationCreator;
+import pl.wat.nutpromobile.features.location.UserLocation;
+import pl.wat.nutpromobile.features.training.Training;
+import pl.wat.nutpromobile.features.training.TrainingListener;
+import pl.wat.nutpromobile.model.TrainingData;
+import pl.wat.nutpromobile.util.NotificationCreator;
 import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.ble.Connection;
+import pl.wat.nutpromobile.features.ble.Connection;
 import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
 import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
-import pl.wat.nutpromobile.training.TrainingService;
-import pl.wat.nutpromobile.training.TrainingServiceHelper;
+import pl.wat.nutpromobile.features.training.TrainingService;
 
 public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener,
-        OnTrainingFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener {
+        OnTrainingFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener, TrainingListener {
     public final static String TAG = "Custom: " + MainActivity.class.getSimpleName();
     public static final String INTENT_FIRST_LAUNCH = "pl.wat.nutpromobile.MainActivity.FIRST_LAUNCH";
 
@@ -36,11 +38,13 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     BottomNavigationView navigation;
 
     private Connection connection;
+    private UserLocation userLocation;
     private Permission permission;
     private PreferencesManager preferencesManager;
-    private TrainingServiceHelper trainingServiceHelper;
 
     private TrainingService trainingService;
+
+    private Training training;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +54,10 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
         permission = new Permission(this);
         permission.startPermissionRequest();
         ButterKnife.bind(this);
-        trainingServiceHelper = new TrainingServiceHelper(this);
-        NavigationUI.setupWithNavController(navigation, Navigation.findNavController(this, R.id.nav_host_fragment));
+        setupNavigation();
         connection = new Connection(this, getLifecycle());
+        userLocation = new UserLocation(this);
+        training = new Training(this, connection, userLocation);
         getLifecycle().addObserver(connection);
         preferencesManager = new PreferencesManager(this);
         NotificationCreator.createNotificationChannel(this);
@@ -63,10 +68,6 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     protected void onStart() {
         super.onStart();
         Log.i(TAG, TAG + " started");
-        if (trainingService != null) {
-            bindService(new Intent(this,
-                    TrainingService.class), mConnection, Context.BIND_AUTO_CREATE);
-        }
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
     }
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     protected void onStop() {
         super.onStop();
         PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -86,10 +87,10 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
 
     private void setupNavigation() {
         NavigationUI.setupWithNavController(navigation, Navigation.findNavController(this, R.id.nav_host_fragment));
-        checkIfIsFirstLauch();
+        checkIfIsFirstLaunchAndNavigate();
     }
 
-    private void checkIfIsFirstLauch() {
+    private void checkIfIsFirstLaunchAndNavigate() {
         Intent intent = getIntent();
         Boolean firstLunch = intent.getBooleanExtra(MainActivity.INTENT_FIRST_LAUNCH, true);
         if (firstLunch) {
@@ -100,46 +101,22 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     @Override
     public void startTraining() {
         System.out.println("Activity START Click");
-        Intent intent = new Intent(this, TrainingService.class);
-        intent.putExtra(TrainingService.NOTIFICATION, trainingServiceHelper.buildNotification());
-
-        startService(intent);
-        if (trainingService == null) {
-            bindService(new Intent(this,
-                    TrainingService.class), mConnection, Context.BIND_AUTO_CREATE);
-        }
+        training.startTraining();
     }
 
     @Override
     public void stopTraining() {
         System.out.println("Activity STOP Click");
-        Intent intent = new Intent(this, TrainingService.class);
-        trainingService = null;
-        stopService(intent);
+        training.removeTrainingListener();
+        training.stopTraining();
     }
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            TrainingService.LocalBinder binder = (TrainingService.LocalBinder) iBinder;
-            trainingService = binder.getService();
-            trainingService.handleTraining(connection);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            trainingService = null;
-        }
-    };
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         Log.i(TAG, TAG +" destroyed");
-        if (trainingService != null) {
-            // Detach the service connection.
-            unbindService(mConnection);
-        }
+        training.removeTrainingListener();
+        training.stopTraining();
+        super.onDestroy();
     }
 
     @Override
@@ -150,5 +127,10 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         preferencesManager.setChangePreferencesBehaviours(sharedPreferences, key);
+    }
+
+    @Override
+    public void onTrainingDataProcessed(TrainingData trainingData) {
+        System.out.println(trainingData.getSensoricData().getRawData());
     }
 }
