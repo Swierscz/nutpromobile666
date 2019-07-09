@@ -1,14 +1,13 @@
 package pl.wat.nutpromobile.features.training;
 
-import android.app.Notification;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -18,15 +17,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-import pl.wat.nutpromobile.util.NotificationCreator;
-import pl.wat.nutpromobile.features.ble.BluetoothLeService;
 import pl.wat.nutpromobile.features.ble.Connection;
+import pl.wat.nutpromobile.features.ble.ConnectionListener;
+import pl.wat.nutpromobile.features.location.UserLocation;
+import pl.wat.nutpromobile.features.location.UserLocationListener;
+import pl.wat.nutpromobile.model.SensoricData;
+import pl.wat.nutpromobile.model.TrainingData;
+import pl.wat.nutpromobile.util.NotificationCreator;
 
-public class TrainingService extends Service {
-
-    public static String NOTIFICATION = "pl_wat_nutpro_mobile_notification_icon";
-
-    private static final int TRAINING_SERVICE_ID = 10201;
+public class TrainingService extends Service implements UserLocationListener, ConnectionListener {
+    private final static String TAG = TrainingService.class.getSimpleName();
 
     private String staticFileName;
 
@@ -39,6 +39,12 @@ public class TrainingService extends Service {
     private Context context;
 
     private Connection connection;
+
+    private UserLocation userLocation;
+
+    private TrainingListener trainingListener;
+
+    private Location location;
 
     @Override
     public void onCreate() {
@@ -55,17 +61,26 @@ public class TrainingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mBinder = new LocalBinder();
-        context = getBaseContext();
-        Notification notification = intent.getExtras().getParcelable(NOTIFICATION);
-        startForeground(NotificationCreator.getNotificationId(), NotificationCreator.getNotification(getApplicationContext()));
+        if ("stop".equals(intent.getAction())) {
+            Log.i(TAG, "called to cancel service");
+            prepareServiceToStop();
+            stopSelf();
+        } else {
+            Log.i(TAG, TAG + " foreground started");
+            mBinder = new LocalBinder();
+            context = getBaseContext();
+            startForeground(NotificationCreator.getNotificationId(), NotificationCreator.getNotification(getApplicationContext()));
+        }
         return START_STICKY;
     }
 
-    public void handleTraining(Connection connection) {
-        if (this.connection != null)
+    public void handleTraining(Connection connection, UserLocation userLocation) {
+        if (this.connection != null || this.userLocation != null)
             return;
         this.connection = connection;
+        this.userLocation = userLocation;
+        userLocation.addUserLocationListener(this);
+        connection.addConnectionListener(this);
         connection.sendCommand("a");
         File dir = new File(storagePath + "/NutproMobile");
         if (!dir.exists()) {
@@ -78,46 +93,62 @@ public class TrainingService extends Service {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getApplicationContext().registerReceiver(gattEventsReceiver, makeGattUpdateIntentFilter());
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.i(TAG, TAG + " unbind");
+        prepareServiceToStop();
+        return super.onUnbind(intent);
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        getApplicationContext().unregisterReceiver(gattEventsReceiver);
+        Log.i(TAG, TAG + " destroyed");
+        prepareServiceToStop();
         try {
             bufferedWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        super.onDestroy();
     }
 
-    private IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
-        return intentFilter;
+    @Override
+    public void onUserLocationChanged(Location location) {
+        System.out.println("Loc: " + location.getLatitude() + " - " + location.getLongitude());
+    }
+
+    @Override
+    public void onDataReceived(SensoricData sensoricData) {
+        trainingListener.onTrainingDataProcessed(new TrainingData(sensoricData, location));
     }
 
     public class LocalBinder extends Binder {
         public TrainingService getService() {
-            //zwracamy instancje serwisu, przez nią odwołamy się następnie do metod.
             return TrainingService.this;
         }
     }
 
-    private final BroadcastReceiver gattEventsReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                //BluetoothLeService.EXTRA_DATA
-                String s = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
-                try {
-                    bufferedWriter.append("Received data is: " + s + " Breakpoint\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    private void saveDataToFile(String data) {
+        try {
+            bufferedWriter.append(data);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    };
+    }
+
+    public void addTrainingListener(TrainingListener trainingListener) {
+        this.trainingListener = trainingListener;
+    }
+
+    public void removeTrainingListener() {
+        this.trainingListener = null;
+    }
+
+    private void prepareServiceToStop() {
+        connection.sendCommand("q");
+        userLocation.removeUserLocationListener();
+        connection.removeConnectionListener();
+    }
 }

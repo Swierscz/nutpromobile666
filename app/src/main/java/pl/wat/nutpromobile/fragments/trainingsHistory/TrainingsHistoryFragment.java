@@ -1,4 +1,4 @@
-package pl.wat.nutpromobile.fragments.trainings_history;
+package pl.wat.nutpromobile.fragments.trainingsHistory;
 
 
 import android.os.Bundle;

@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
+import pl.wat.nutpromobile.model.SensoricData;
 import pl.wat.nutpromobile.util.NotificationCreator;
 
 /**
@@ -34,6 +35,7 @@ public class BluetoothLeService extends Service {
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
     private int mConnectionState = STATE_DISCONNECTED;
+    private ConnectionListener connectionListener;
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -106,6 +108,7 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                // filterReceivedData(new String(characteristic.getValue()));
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
         }
@@ -113,6 +116,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
+            // filterReceivedData(new String(characteristic.getValue()));
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
 
@@ -134,13 +138,20 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
+    private StringBuilder sbFRD = new StringBuilder();
+
+    private void broadcastDataToConnectionListener(String data) {
+        if (connectionListener != null)
+            connectionListener.onDataReceived(new SensoricData(data));
+    }
+
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
             final Intent intent = new Intent(action);
-
             // For all other profiles, writes the data formatted in HEX.
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
+                broadcastDataToConnectionListener(new String(data));
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
                 final StringBuilder stringBuilder2 = new StringBuilder(data.length);
                 for (byte byteChar : data) {
@@ -151,9 +162,7 @@ public class BluetoothLeService extends Service {
                 intent.putExtra(EXTRA_DATA, "data: " + new String(data) + "\n" + "interpretation: " + stringBuilder.toString());
 
             }
-
             sendBroadcast(intent);
-
     }
 
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic,
@@ -334,6 +343,14 @@ public class BluetoothLeService extends Service {
     public List<BluetoothGattService> getSupportedGattServices() {
         if (mBluetoothGatt == null) return null;
         return mBluetoothGatt.getServices();
+    }
+
+    public void addConnectionListener(ConnectionListener connectionListener) {
+        this.connectionListener = connectionListener;
+    }
+
+    public void removeConnectionListener() {
+        connectionListener = null;
     }
 
     @Override

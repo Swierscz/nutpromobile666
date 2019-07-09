@@ -1,4 +1,4 @@
-package pl.wat.nutpromobile.activity;
+package pl.wat.nutpromobile.activity.splash;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import pl.wat.nutpromobile.R;
+import pl.wat.nutpromobile.activity.login.LoginActivity;
 import pl.wat.nutpromobile.activity.main.MainActivity;
 
 public class SplashActivity extends AppCompatActivity {
@@ -17,11 +18,8 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        //setSupportActionBar(toolbar);?
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();
-        Log.i(TAG, "Halko");
-
     }
 }
