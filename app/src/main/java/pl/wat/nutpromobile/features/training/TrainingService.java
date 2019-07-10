@@ -17,15 +17,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-import pl.wat.nutpromobile.features.ble.Connection;
-import pl.wat.nutpromobile.features.ble.ConnectionListener;
+import pl.wat.nutpromobile.features.ble.BluetoothConnection;
+import pl.wat.nutpromobile.features.ble.BluetoothConnectionListener;
 import pl.wat.nutpromobile.features.location.UserLocation;
 import pl.wat.nutpromobile.features.location.UserLocationListener;
 import pl.wat.nutpromobile.model.SensoricData;
 import pl.wat.nutpromobile.model.TrainingData;
 import pl.wat.nutpromobile.util.NotificationCreator;
 
-public class TrainingService extends Service implements UserLocationListener, ConnectionListener {
+public class TrainingService extends Service implements UserLocationListener, BluetoothConnectionListener {
     private final static String TAG = TrainingService.class.getSimpleName();
 
     private String staticFileName;
@@ -38,7 +38,7 @@ public class TrainingService extends Service implements UserLocationListener, Co
 
     private Context context;
 
-    private Connection connection;
+    private BluetoothConnection bluetoothConnection;
 
     private UserLocation userLocation;
 
@@ -74,14 +74,14 @@ public class TrainingService extends Service implements UserLocationListener, Co
         return START_STICKY;
     }
 
-    public void handleTraining(Connection connection, UserLocation userLocation) {
-        if (this.connection != null || this.userLocation != null)
+    public void handleTraining(BluetoothConnection bluetoothConnection, UserLocation userLocation) {
+        if (this.bluetoothConnection != null || this.userLocation != null)
             return;
-        this.connection = connection;
+        this.bluetoothConnection = bluetoothConnection;
         this.userLocation = userLocation;
         userLocation.addUserLocationListener(this);
-        connection.addConnectionListener(this);
-        connection.sendCommand("a");
+        bluetoothConnection.addConnectionListener(this);
+        bluetoothConnection.sendCommand("a");
         File dir = new File(storagePath + "/NutproMobile");
         if (!dir.exists()) {
             dir.mkdirs();
@@ -147,8 +147,8 @@ public class TrainingService extends Service implements UserLocationListener, Co
     }
 
     private void prepareServiceToStop() {
-        connection.sendCommand("q");
+        bluetoothConnection.sendCommand("q");
         userLocation.removeUserLocationListener();
-        connection.removeConnectionListener();
+        bluetoothConnection.removeConnectionListener();
     }
 }

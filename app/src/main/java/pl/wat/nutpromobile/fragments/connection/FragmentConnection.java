@@ -117,7 +117,7 @@ public class FragmentConnection extends Fragment {
     private void fetchBluetoothDevices() {
         Toast.makeText(getContext(), "Bluetooth devices fetching started", Toast.LENGTH_SHORT).show();
         Single<List<BluetoothDevice>> deviceSingle = Single.fromCallable(() ->
-                activityInteraction.getConnection().getBleScanner().scanForDevices());
+                activityInteraction.getBluetoothConnection().getBleScanner().scanForDevices());
 
         deviceSingle.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -151,7 +151,7 @@ public class FragmentConnection extends Fragment {
         DevicesAdapter listAdapter = new DevicesAdapter(devices, (v, pos) -> {
             if(devices.size()>0){
             Toast.makeText(FragmentConnection.this.getContext(), "Device name: " + devices.get(pos).getName(), Toast.LENGTH_SHORT).show();
-            activityInteraction.getConnection().connectToDevice(devices.get(pos).getAddress());
+            activityInteraction.getBluetoothConnection().connectToDevice(devices.get(pos).getAddress());
             }else{
                 Toast.makeText(getContext(), "Please pull to refresh data", Toast.LENGTH_SHORT).show();
             }

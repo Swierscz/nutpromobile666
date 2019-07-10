@@ -61,7 +61,7 @@ public class MoreFragment extends Fragment {
                     if(moreElementsAdapter.getElement(pos).equals("Options")){
                         Navigation.findNavController(Objects.requireNonNull(getActivity()), R.id.nav_host_fragment).navigate(R.id.settings);
                     }else if(moreElementsAdapter.getElement(pos).equals("Connections")){
-                        Navigation.findNavController(Objects.requireNonNull(getActivity()), R.id.nav_host_fragment).navigate(R.id.connection);
+                        Navigation.findNavController(Objects.requireNonNull(getActivity()), R.id.nav_host_fragment).navigate(R.id.bluetoothConnection);
                     }
 
         });

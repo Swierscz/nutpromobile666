@@ -1,7 +1,7 @@
 package pl.wat.nutpromobile.fragments.connection;
 
-import pl.wat.nutpromobile.features.ble.Connection;
+import pl.wat.nutpromobile.features.ble.BluetoothConnection;
 
 public interface OnConnectionFragmentInteractionListener {
-    Connection getConnection();
+    BluetoothConnection getBluetoothConnection();
 }
