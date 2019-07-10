@@ -13,7 +13,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import pl.wat.nutpromobile.util.NotificationCreator;
+import pl.wat.nutpromobile.features.service.MyNotification;
 
 public class UserLocationService extends Service implements LocationListener {
 
@@ -31,16 +31,30 @@ public class UserLocationService extends Service implements LocationListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mBinder = new LocalBinder();
-        setupLocation(getBaseContext());
-        startForeground(NotificationCreator.getNotificationId(), NotificationCreator.getNotification(getApplicationContext()));
+        if(intent!=null) {
+            if (MyNotification.Action.END.toString().equals(intent.getAction())) {
+                Log.i(TAG, TAG + " foreground stop triggered");
+                stopForeground(true);
+            } else if (MyNotification.Action.START.toString().equals(intent.getAction())) {
+                Log.i(TAG, TAG + " foreground start triggered");
+                mBinder = new LocalBinder();
+                startForeground(MyNotification.getNotificationId(), MyNotification.getNotification(getApplicationContext(), true));
+            }
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.i(TAG, TAG + " binded");
         return mBinder;
+}
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.i(TAG, TAG + " unbound");
+        return super.onUnbind(intent);
     }
 
     public class LocalBinder extends Binder {
@@ -104,5 +118,12 @@ public class UserLocationService extends Service implements LocationListener {
 
     public void removeUserLocationListener() {
         this.userLocationListener = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        removeUserLocationListener();
+        Log.i(TAG, TAG + " destroyed");
     }
 }

@@ -18,7 +18,6 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import pl.wat.nutpromobile.R;
 import pl.wat.nutpromobile.features.service.ServiceManager;
-import pl.wat.nutpromobile.util.ServiceForegroundChecker;
 
 public class BluetoothConnection implements LifecycleObserver, ServiceManager {
     private final static String TAG = "Custom: " + BluetoothConnection.class.getSimpleName();
@@ -48,7 +47,6 @@ public class BluetoothConnection implements LifecycleObserver, ServiceManager {
         bleScanner = new BleScanner(bluetoothAdapter);
         currentActivity.registerReceiver(gattEventsReceiver, makeGattUpdateIntentFilter());
         characteristicManager = new CharacteristicManager();
-        startServiceAsForeground();
         Log.i(TAG, "BluetoothConnection initialization has finished");
     }
 
@@ -67,22 +65,16 @@ public class BluetoothConnection implements LifecycleObserver, ServiceManager {
 
     private boolean shouldUnbindBluetoothService;
 
-    private void startServiceAsForeground() {
-        if (!ServiceForegroundChecker.isServiceRunningInForeground(currentActivity, BluetoothLeService.class)) {
-            currentActivity.startService(new Intent(currentActivity, BluetoothLeService.class));
-        }
-    }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     @Override
-    public void release(){
-        unregisterReceivers();
+    public void release() {
         unbindService();
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     @Override
-    public void resume(){
+    public void resume() {
         registerReceivers();
         bindService();
     }
@@ -90,7 +82,7 @@ public class BluetoothConnection implements LifecycleObserver, ServiceManager {
     @Override
     public void bindService() {
         Intent gattServiceIntent = new Intent(currentActivity, BluetoothLeService.class);
-        currentActivity.bindService(gattServiceIntent, serviceConnection, 0);
+        currentActivity.bindService(gattServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         shouldUnbindBluetoothService = true;
     }
 
@@ -101,6 +93,12 @@ public class BluetoothConnection implements LifecycleObserver, ServiceManager {
             shouldUnbindBluetoothService = false;
         }
         currentActivity.unregisterReceiver(gattEventsReceiver);
+    }
+
+
+
+    public void stopService(){
+        currentActivity.stopService(new Intent(currentActivity, BluetoothLeService.class));
     }
 
     private void registerReceivers() {
@@ -116,7 +114,6 @@ public class BluetoothConnection implements LifecycleObserver, ServiceManager {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            Log.i(TAG, BluetoothLeService.class.getSimpleName() + " connected");
             bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!bluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
@@ -129,7 +126,6 @@ public class BluetoothConnection implements LifecycleObserver, ServiceManager {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            Log.i(TAG, BluetoothLeService.class.getSimpleName() + " disconnected");
             characteristicManager.detachService();
             shouldUnbindBluetoothService = false;
             bluetoothLeService = null;

@@ -1,17 +1,24 @@
 package pl.wat.nutpromobile.fragments.training;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import pl.wat.nutpromobile.R;
@@ -28,8 +35,28 @@ public class TrainingFragment extends Fragment {
 
     private TrainingFragmentViewModel viewModel;
 
+    @BindView(R.id.test)
+    TextView textView;
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals("test")){
+                if(intent !=null )
+                    if(textView!=null)
+                    textView.setText(intent.getStringExtra("test1"));
+            }
+        }
+    };
+
     public TrainingFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getActivity().unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -37,6 +64,7 @@ public class TrainingFragment extends Fragment {
         super.onCreate(savedInstanceState);
         onCreateInit();
         viewModel = ViewModelProviders.of(this).get(TrainingFragmentViewModel.class);
+        getActivity().registerReceiver(broadcastReceiver, new IntentFilter("test"));
     }
 
     @Nullable
@@ -61,14 +89,14 @@ public class TrainingFragment extends Fragment {
 
     @OnClick(R.id.startTrainingButton)
     void onStartButtonClick(View view) {
-        System.out.println("START");
-        activityInteraction.startTraining();
+        Log.i(TAG, "Training start button pressed");
+        activityInteraction.getTraining().startTraining();
     }
 
     @OnClick(R.id.stopTrainingButton)
     void onStopButtonClick(View view) {
-        System.out.println("STOP");
-        activityInteraction.stopTraining();
+        Log.i(TAG, "Training stop button pressed");
+        activityInteraction.getTraining().stopTraining();
     }
 
 }

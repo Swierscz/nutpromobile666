@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -16,6 +18,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import pl.wat.nutpromobile.features.ble.BluetoothConnection;
 import pl.wat.nutpromobile.features.ble.BluetoothConnectionListener;
@@ -23,7 +27,7 @@ import pl.wat.nutpromobile.features.location.UserLocation;
 import pl.wat.nutpromobile.features.location.UserLocationListener;
 import pl.wat.nutpromobile.model.SensoricData;
 import pl.wat.nutpromobile.model.TrainingData;
-import pl.wat.nutpromobile.util.NotificationCreator;
+import pl.wat.nutpromobile.features.service.MyNotification;
 
 public class TrainingService extends Service implements UserLocationListener, BluetoothConnectionListener {
     private final static String TAG = TrainingService.class.getSimpleName();
@@ -56,23 +60,56 @@ public class TrainingService extends Service implements UserLocationListener, Bl
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.i(TAG, TAG + " binded");
         return mBinder;
     }
-
+    private boolean shouldWork = true;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if ("stop".equals(intent.getAction())) {
-            Log.i(TAG, "called to cancel service");
-            prepareServiceToStop();
-            stopSelf();
-        } else {
-            Log.i(TAG, TAG + " foreground started");
-            mBinder = new LocalBinder();
-            context = getBaseContext();
-            startForeground(NotificationCreator.getNotificationId(), NotificationCreator.getNotification(getApplicationContext()));
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                int i = ii++;
+//                Log.i(TAG, "::: " + (i));
+                if(shouldWork) {
+                    handler.postDelayed(this, 1000);
+                    MyNotification.updateText(TrainingService.this, Integer.toString(i));
+                    Intent intent1 = new Intent();
+                    intent1.setAction("test");
+                    intent1.putExtra("test1", Integer.toString(i));
+                    sendBroadcast(intent1);
+                }
+            }
+        };
+
+        if(intent!=null) {
+            if (MyNotification.Action.PAUSE.toString().equals(intent.getAction())) {
+                Log.i(TAG, "Pause training triggered");
+                MyNotification.changeNotificationToResumeButton(context);
+            } else if (MyNotification.Action.RESUME.toString().equals(intent.getAction())) {
+                Log.i(TAG, "Resume training triggered");
+                MyNotification.changeNotificationToPauseButton(context);
+            } else if (MyNotification.Action.END.toString().equals(intent.getAction())) {
+                Log.i(TAG, "End training triggered");
+                shouldWork = false;
+                handler.removeCallbacks(runnable);
+                stopSelf();
+            } else {
+                handler.postDelayed(runnable, 1000);
+                Log.i(TAG, TAG + " foreground started");
+                mBinder = new LocalBinder();
+                context = getBaseContext();
+                startForeground(MyNotification.getNotificationId(), MyNotification.getNotification(getApplicationContext(), true));
+            }
         }
+
+
+
         return START_STICKY;
     }
+
+    private int ii = 0;
 
     public void handleTraining(BluetoothConnection bluetoothConnection, UserLocation userLocation) {
         if (this.bluetoothConnection != null || this.userLocation != null)
@@ -106,10 +143,12 @@ public class TrainingService extends Service implements UserLocationListener, Bl
     public void onDestroy() {
         Log.i(TAG, TAG + " destroyed");
         prepareServiceToStop();
-        try {
-            bufferedWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(bufferedWriter!=null) {
+            try {
+                bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         super.onDestroy();
     }
@@ -147,8 +186,12 @@ public class TrainingService extends Service implements UserLocationListener, Bl
     }
 
     private void prepareServiceToStop() {
-        bluetoothConnection.sendCommand("q");
-        userLocation.removeUserLocationListener();
-        bluetoothConnection.removeConnectionListener();
+        if(bluetoothConnection!=null){
+            bluetoothConnection.sendCommand("q");
+            bluetoothConnection.removeConnectionListener();
+        }
+
+        if(userLocation!=null)
+            userLocation.removeUserLocationListener();
     }
 }

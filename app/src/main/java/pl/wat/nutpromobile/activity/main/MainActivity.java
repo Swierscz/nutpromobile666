@@ -13,17 +13,19 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.sql.Connection;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.wat.nutpromobile.R;
 import pl.wat.nutpromobile.features.ble.BluetoothConnection;
 import pl.wat.nutpromobile.features.location.UserLocation;
+import pl.wat.nutpromobile.features.service.MyNotification;
 import pl.wat.nutpromobile.features.training.Training;
 import pl.wat.nutpromobile.features.training.TrainingListener;
 import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
 import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
 import pl.wat.nutpromobile.model.TrainingData;
-import pl.wat.nutpromobile.util.NotificationCreator;
 
 public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener,
         OnTrainingFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener, TrainingListener {
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
         getLifecycle().addObserver(bluetoothConnection);
         getLifecycle().addObserver(training);
         preferencesManager = new PreferencesManager(this);
-        NotificationCreator.createNotificationChannel(this);
+        MyNotification.createNotificationChannel(this);
     }
 
 
@@ -94,19 +96,6 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     }
 
     @Override
-    public void startTraining() {
-        System.out.println("Training START Click");
-        training.startTraining();
-    }
-
-    @Override
-    public void stopTraining() {
-        System.out.println("Training STOP Click");
-        training.stopTraining();
-    }
-
-
-    @Override
     protected void onDestroy() {
         Log.i(TAG, TAG + " destroyed");
         super.onDestroy();
@@ -115,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permission.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
     }
 
     @Override
@@ -126,4 +116,10 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     public void onTrainingDataProcessed(TrainingData trainingData) {
         System.out.println(trainingData.getSensoricData().getRawData());
     }
+
+    @Override
+    public Training getTraining() {
+        return training;
+    }
+
 }

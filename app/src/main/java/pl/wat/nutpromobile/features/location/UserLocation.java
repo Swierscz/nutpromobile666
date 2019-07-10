@@ -6,13 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import pl.wat.nutpromobile.features.service.ServiceManager;
-import pl.wat.nutpromobile.util.ServiceForegroundChecker;
+import pl.wat.nutpromobile.features.training.TrainingService;
 
 
 public class UserLocation implements LifecycleObserver, ServiceManager {
@@ -28,34 +29,30 @@ public class UserLocation implements LifecycleObserver, ServiceManager {
         initUserLocation();
     }
 
-     public UserLocation(Activity activity, Lifecycle lifecycle){
+    public UserLocation(Activity activity, Lifecycle lifecycle) {
         this.activity = activity;
         this.lifecycle = lifecycle;
-     }
+    }
 
     private void initUserLocation() {
-        startServiceAsForeground();
+
     }
 
     public void addUserLocationListener(UserLocationListener userLocationListener) {
-        userLocationService.addUserLocationListener(userLocationListener);
+        if(userLocationService!=null)
+            userLocationService.addUserLocationListener(userLocationListener);
     }
 
     public void removeUserLocationListener() {
-        userLocationService.removeUserLocationListener();
-    }
-
-    void startServiceAsForeground(){
-        if (!ServiceForegroundChecker.isServiceRunningInForeground(activity, UserLocationService.class)) {
-            activity.startService(new Intent(activity, UserLocationService.class));
-        }
+        if(userLocationService!=null)
+            userLocationService.removeUserLocationListener();
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     @Override
-    public void bindService(){
-        Intent gattServiceIntent = new Intent(activity, UserLocationService.class);
-        activity.bindService(gattServiceIntent, userLocationServiceConnection, Context.BIND_AUTO_CREATE);
+    public void bindService() {
+        Intent intent = new Intent(activity, UserLocationService.class);
+        activity.bindService(intent, userLocationServiceConnection, Context.BIND_AUTO_CREATE);
         shouldUnbindLocationService = true;
     }
 
@@ -69,10 +66,14 @@ public class UserLocation implements LifecycleObserver, ServiceManager {
     }
 
 
+    public void stopService(){
+        activity.stopService(new Intent(activity, UserLocationService.class));
+    }
+
     private ServiceConnection userLocationServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            userLocationService =((UserLocationService.LocalBinder)iBinder).getService();
+            userLocationService = ((UserLocationService.LocalBinder) iBinder).getService();
             shouldUnbindLocationService = true;
         }
 
