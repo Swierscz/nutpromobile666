@@ -1,11 +1,8 @@
 package pl.wat.nutpromobile.activity.main;
 
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -18,16 +15,15 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pl.wat.nutpromobile.R;
+import pl.wat.nutpromobile.features.ble.Connection;
 import pl.wat.nutpromobile.features.location.UserLocation;
 import pl.wat.nutpromobile.features.training.Training;
 import pl.wat.nutpromobile.features.training.TrainingListener;
-import pl.wat.nutpromobile.model.TrainingData;
-import pl.wat.nutpromobile.util.NotificationCreator;
-import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.features.ble.Connection;
 import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
 import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
-import pl.wat.nutpromobile.features.training.TrainingService;
+import pl.wat.nutpromobile.model.TrainingData;
+import pl.wat.nutpromobile.util.NotificationCreator;
 
 public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener,
         OnTrainingFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener, TrainingListener {
@@ -41,8 +37,6 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     private UserLocation userLocation;
     private Permission permission;
     private PreferencesManager preferencesManager;
-
-    private TrainingService trainingService;
 
     private Training training;
 
@@ -107,16 +101,21 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     @Override
     public void stopTraining() {
         System.out.println("Activity STOP Click");
-        training.removeTrainingListener();
-        training.stopTraining();
+        initStopTraining();
     }
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG, TAG +" destroyed");
-        training.removeTrainingListener();
-        training.stopTraining();
+        Log.i(TAG, TAG + " destroyed");
+        initStopTraining();
         super.onDestroy();
+    }
+
+    private void initStopTraining() {
+        if (training != null) {
+            training.removeTrainingListener();
+            training.stopTraining();
+        }
     }
 
     @Override

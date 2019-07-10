@@ -10,6 +10,7 @@ import android.view.View;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import pl.wat.nutpromobile.NutproMobileApp;
 import pl.wat.nutpromobile.R;
 import pl.wat.nutpromobile.activity.main.MainActivity;
 

@@ -28,14 +28,14 @@ public class Training {
     }
 
     public void startTraining() {
-        initTraining();
+        initTrainingService();
     }
 
     public void stopTraining() {
         activity.stopService(new Intent(activity, TrainingService.class));
     }
 
-    private void initTraining() {
+    private void initTrainingService() {
         activity.startService(new Intent(activity, TrainingService.class));
         if (trainingService == null) {
             activity.bindService(new Intent(activity, TrainingService.class), trainingServiceConnection, 0);
@@ -43,11 +43,15 @@ public class Training {
     }
 
     public void addTrainingListener(TrainingListener trainingListener) {
-        trainingService.addTrainingListener(trainingListener);
+        if (trainingService != null ) {
+            trainingService.addTrainingListener(trainingListener);
+        }
     }
 
     public void removeTrainingListener() {
-        trainingService.removeTrainingListener();
+        if (trainingService != null ) {
+            trainingService.removeTrainingListener();
+        }
     }
 
     private ServiceConnection trainingServiceConnection = new ServiceConnection() {
