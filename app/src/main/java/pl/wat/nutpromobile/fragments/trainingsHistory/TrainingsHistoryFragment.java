@@ -13,11 +13,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -61,14 +63,16 @@ public class TrainingsHistoryFragment extends Fragment {
         trainingHistoryViewModel = ViewModelProviders.of(this).get(TrainingHistoryViewModel.class);
         trainingHistoryListAdapter = new TrainingHistoryListAdapter(
                 (v, pos) -> {
-            Toast.makeText(TrainingsHistoryFragment.this.getContext()
-                    , "Click: " + trainingHistoryListAdapter.getElement(pos).getStartTrainingTime().toString(), Toast.LENGTH_SHORT).show();
+            Bundle args = new Bundle();
+            args.putInt(TrainingSummaryRow.class.getName(), trainingHistoryListAdapter.getElement(pos).getTsrid());
+            Navigation.findNavController(Objects.requireNonNull(getActivity()), R.id.nav_host_fragment)
+                    .navigate(R.id.training_summary, args);
         });
+        trainingsHistoryRecyclerView.setAdapter(trainingHistoryListAdapter);
         trainingHistoryViewModel.getAllTrainings().observe(this, new Observer<List<TrainingSummaryRow>>() {
             @Override
             public void onChanged(@Nullable final List<TrainingSummaryRow> trainigSummaryRowList) {
                 // Update the cached copy of the words in the adapter.
-                trainingHistoryListAdapter.setTrainingList(trainigSummaryRowList);
                 trainingHistoryListAdapter.setTrainingList(trainigSummaryRowList);
             }
         });

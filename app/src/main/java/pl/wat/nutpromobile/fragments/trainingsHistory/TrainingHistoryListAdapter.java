@@ -51,7 +51,7 @@ public class TrainingHistoryListAdapter extends RecyclerView.Adapter<TrainingHis
 
     @Override
     public int getItemCount() {
-        return trainingSummaryList.isEmpty() ? 1 : trainingSummaryList.size();
+        return trainingSummaryList==null ? 0 : trainingSummaryList.size();
     }
 
     public void setTrainingList(List<TrainingSummaryRow> trainingList) {

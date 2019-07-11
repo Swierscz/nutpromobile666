@@ -152,7 +152,7 @@ public class FragmentConnection extends Fragment {
             if(devices.size()>0){
             Toast.makeText(FragmentConnection.this.getContext(), "Device name: " + devices.get(pos).getName(), Toast.LENGTH_SHORT).show();
             activityInteraction.getConnection().connectToDevice(devices.get(pos).getAddress());
-            }else{
+            } else {
                 Toast.makeText(getContext(), "Please pull to refresh data", Toast.LENGTH_SHORT).show();
             }
         });

@@ -18,4 +18,7 @@ public interface TrainingSummaryDao {
 
     @Query("SELECT * FROM trainingsummaryrow")
     LiveData<List<TrainingSummaryRow>> getAll();
+
+    @Query("SELECT * FROM trainingsummaryrow WHERE tsrid = :id")
+    LiveData<TrainingSummaryRow> findTrainingSummaryById(int id);
 }

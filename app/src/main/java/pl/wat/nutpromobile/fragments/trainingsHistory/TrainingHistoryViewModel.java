@@ -2,6 +2,7 @@ package pl.wat.nutpromobile.fragments.trainingsHistory;
 
 import android.app.Application;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
@@ -16,11 +17,12 @@ public class TrainingHistoryViewModel extends AndroidViewModel {
 
     private TrainingSummaryRepository trainingSummaryRepository;
 
-    LiveData<List<TrainingSummaryRow>> trainingSummaryList;
+    private LiveData<List<TrainingSummaryRow>> trainingSummaryList;
 
-    public TrainingHistoryViewModel(Application application) {
+    public TrainingHistoryViewModel(@NonNull Application application) {
         super(application);
-        trainingSummaryRepository = new TrainingSummaryRepository((NutproMobileApp)application);
+        trainingSummaryRepository = ((NutproMobileApp)application).repositoryProvider
+                .getTrainingSummaryRepositoryInstance((NutproMobileApp)application);
         trainingSummaryList = trainingSummaryRepository.getAllTrainings();
     }
 
