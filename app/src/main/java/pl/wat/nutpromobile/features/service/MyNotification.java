@@ -19,15 +19,29 @@ public class MyNotification {
     private static final int NOTIFICATION_ID = 1094;
     private static final int INTENT_REQUEST_CODE = 1095;
     private static final String CHANELL_ID = "chanel_id";
+    private static MyNotification INSTANCE;
 
     public enum Action {
         START, PAUSE, RESUME, END
     }
 
     private static Notification notification;
-    private static NotificationCompat.Builder currentBuild;
+    private NotificationCompat.Builder currentBuild;
 
-    public static Notification getNotification(Context context, boolean isPause) {
+
+
+    public static MyNotification getInstance(){
+        if(INSTANCE == null)
+            synchronized (MyNotification.class){
+                if(INSTANCE == null)
+                    INSTANCE = new MyNotification();
+            }
+        return INSTANCE;
+    }
+
+
+
+    public Notification getNotification(Context context, boolean isPause) {
         if (notification == null) {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANELL_ID);
             builder.setContentTitle("Nutpro");
@@ -57,21 +71,21 @@ public class MyNotification {
         return builder;
     }
 
-    public static void changeNotificationToPauseButton(Context context) {
+    public void changeNotificationToPauseButton(Context context) {
         if (currentBuild != null) {
             currentBuild = createBuilderWithActions(context, currentBuild, true);
         }
         updateNotification(context, currentBuild.build());
     }
 
-    public static void changeNotificationToResumeButton(Context context) {
+    public void changeNotificationToResumeButton(Context context) {
         if (currentBuild != null) {
             currentBuild = createBuilderWithActions(context, currentBuild, false);
         }
         updateNotification(context, currentBuild.build());
     }
 
-    public static void updateText(Context context, String time) {
+    public void updateText(Context context, String time) {
         currentBuild = currentBuild.setStyle(new NotificationCompat.BigTextStyle().bigText("Distance: " + time + "m"));
         updateNotification(context, currentBuild.build());
     }
@@ -113,6 +127,7 @@ public class MyNotification {
         final NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(getNotificationId(), notification);
     }
+
 
 
     public static int getNotificationId() {

@@ -38,7 +38,7 @@ public class UserLocationService extends Service implements LocationListener {
             } else if (MyNotification.Action.START.toString().equals(intent.getAction())) {
                 Log.i(TAG, TAG + " foreground start triggered");
                 mBinder = new LocalBinder();
-                startForeground(MyNotification.getNotificationId(), MyNotification.getNotification(getApplicationContext(), true));
+                startForeground(MyNotification.getNotificationId(), MyNotification.getInstance().getNotification(getApplicationContext(), true));
             }
         }
         return super.onStartCommand(intent, flags, startId);

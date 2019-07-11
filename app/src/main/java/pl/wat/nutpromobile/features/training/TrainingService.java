@@ -74,7 +74,7 @@ public class TrainingService extends Service implements UserLocationListener, Bl
 //                Log.i(TAG, "::: " + (i));
                 if(shouldWork) {
                     handler.postDelayed(this, 1000);
-                    MyNotification.updateText(TrainingService.this, Integer.toString(i));
+                    MyNotification.getInstance().updateText(TrainingService.this, Integer.toString(i));
                     Intent intent1 = new Intent();
                     intent1.setAction("test");
                     intent1.putExtra("test1", Integer.toString(i));
@@ -86,10 +86,10 @@ public class TrainingService extends Service implements UserLocationListener, Bl
         if(intent!=null) {
             if (MyNotification.Action.PAUSE.toString().equals(intent.getAction())) {
                 Log.i(TAG, "Pause training triggered");
-                MyNotification.changeNotificationToResumeButton(context);
+                MyNotification.getInstance().changeNotificationToResumeButton(context);
             } else if (MyNotification.Action.RESUME.toString().equals(intent.getAction())) {
                 Log.i(TAG, "Resume training triggered");
-                MyNotification.changeNotificationToPauseButton(context);
+                MyNotification.getInstance().changeNotificationToPauseButton(context);
             } else if (MyNotification.Action.END.toString().equals(intent.getAction())) {
                 Log.i(TAG, "End training triggered");
                 shouldWork = false;
@@ -100,7 +100,7 @@ public class TrainingService extends Service implements UserLocationListener, Bl
                 Log.i(TAG, TAG + " foreground started");
                 mBinder = new LocalBinder();
                 context = getBaseContext();
-                startForeground(MyNotification.getNotificationId(), MyNotification.getNotification(getApplicationContext(), true));
+                startForeground(MyNotification.getNotificationId(), MyNotification.getInstance().getNotification(getApplicationContext(), true));
             }
         }
 
