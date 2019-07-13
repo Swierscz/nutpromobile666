@@ -10,5 +10,5 @@ import lombok.Data;
 public class TrainingData {
     private SensoricData sensoricData;
     private Location location;
-
+    private float distance;
 }

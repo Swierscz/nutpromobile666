@@ -130,6 +130,6 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
 
     @Override
     public void onTrainingDataProcessed(TrainingData trainingData) {
-        System.out.println(trainingData.getSensoricData().getRawData());
+        System.out.println(trainingData.getDistance());
     }
 }

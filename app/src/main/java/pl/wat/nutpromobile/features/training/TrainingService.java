@@ -46,6 +46,8 @@ public class TrainingService extends Service implements UserLocationListener, Co
 
     private Location location;
 
+    private float distance;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -71,6 +73,7 @@ public class TrainingService extends Service implements UserLocationListener, Co
             context = getBaseContext();
             startForeground(NotificationCreator.getNotificationId(), NotificationCreator.getNotification(getApplicationContext()));
         }
+        distance = 0;
         return START_STICKY;
     }
 
@@ -116,12 +119,17 @@ public class TrainingService extends Service implements UserLocationListener, Co
 
     @Override
     public void onUserLocationChanged(Location location) {
+        if (this.location != null) {
+            distance = distance + this.location.distanceTo(location);
+        }
+        this.location = location;
         System.out.println("Loc: " + location.getLatitude() + " - " + location.getLongitude());
+        trainingListener.onTrainingDataProcessed(new TrainingData(null, location, distance));
     }
 
     @Override
     public void onDataReceived(SensoricData sensoricData) {
-        trainingListener.onTrainingDataProcessed(new TrainingData(sensoricData, location));
+        trainingListener.onTrainingDataProcessed(new TrainingData(sensoricData, location, distance));
     }
 
     public class LocalBinder extends Binder {
