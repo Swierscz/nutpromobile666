@@ -9,12 +9,12 @@ import android.os.IBinder;
 import java.util.Date;
 
 import pl.wat.nutpromobile.NutproMobileApp;
-import pl.wat.nutpromobile.activity.main.MainActivity;
 import pl.wat.nutpromobile.db.repository.TrainingSummaryRepository;
 import pl.wat.nutpromobile.db.row.TrainingSummaryRow;
 import pl.wat.nutpromobile.features.ble.Connection;
 import pl.wat.nutpromobile.features.location.UserLocation;
 import pl.wat.nutpromobile.model.TrainingSummary;
+import pl.wat.nutpromobile.model.TrainingType;
 
 public class Training {
     private final static String TAG = "Custom: " + Training.class.getSimpleName();
@@ -31,22 +31,31 @@ public class Training {
 
     private TrainingSummary trainingSummary;
 
+    private TrainingListener trainingListener;
+
+    private TrainingType trainingType;
+
     public Training(Activity activity, Connection connection, UserLocation userLocation) {
         this.activity = activity;
         this.connection = connection;
         this.userLocation = userLocation;
-        this.trainingSummaryRepository = ((NutproMobileApp)activity.getApplication()).repositoryProvider
-                .getTrainingSummaryRepositoryInstance((NutproMobileApp)activity.getApplication());
+        this.trainingSummaryRepository = ((NutproMobileApp) activity.getApplication()).repositoryProvider
+                .getTrainingSummaryRepositoryInstance((NutproMobileApp) activity.getApplication());
     }
 
-    public void startTraining() {
+    public void startTraining(TrainingType trainingType) {
+        this.trainingType = trainingType;
         initTrainingService();
-        initTrainingMonitoring();
+        // initTrainingMonitoring();
     }
 
     public void stopTraining() {
         saveTraining();
         activity.stopService(new Intent(activity, TrainingService.class));
+    }
+
+    public void setTrainingListener(TrainingListener trainingListener) {
+        this.trainingListener = trainingListener;
     }
 
     private void initTrainingService() {
@@ -56,11 +65,21 @@ public class Training {
         }
     }
 
-    private void saveTraining() {
-        trainingSummary.setStopTrainingTime(new Date());
+    private void saveTraining() {/*
+        if (trainingSummary != null) {
+            trainingSummary.setStopTrainingTime(new Date());
+            TrainingSummaryRow trainingSummaryRow = new TrainingSummaryRow();
+            trainingSummaryRow.setStartTrainingTime(trainingSummary.getStartTrainingTime().toString());
+            trainingSummaryRow.setStopTrainingTime(trainingSummary.getStopTrainingTime().toString());
+            trainingSummaryRepository.insertTrainingSummary(trainingSummaryRow);
+        }*/
+        trainingSummary = trainingService.getTrainingSummaryData();
         TrainingSummaryRow trainingSummaryRow = new TrainingSummaryRow();
         trainingSummaryRow.setStartTrainingTime(trainingSummary.getStartTrainingTime().toString());
         trainingSummaryRow.setStopTrainingTime(trainingSummary.getStopTrainingTime().toString());
+        trainingSummaryRow.setDistance(trainingSummary.getDistance());
+        trainingSummaryRow.setAverageSpeed(trainingSummary.getAverageSpeed());
+        trainingSummaryRow.setTrainingType(trainingType.toString());
         trainingSummaryRepository.insertTrainingSummary(trainingSummaryRow);
     }
 
@@ -69,14 +88,14 @@ public class Training {
         trainingSummary.setStartTrainingTime(new Date());
     }
 
-    public void addTrainingListener(TrainingListener trainingListener) {
-        if (trainingService != null ) {
+    private void addTrainingListener() {
+        if (trainingService != null) {
             trainingService.addTrainingListener(trainingListener);
         }
     }
 
     public void removeTrainingListener() {
-        if (trainingService != null ) {
+        if (trainingService != null) {
             trainingService.removeTrainingListener();
         }
     }
@@ -86,8 +105,8 @@ public class Training {
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             TrainingService.LocalBinder binder = (TrainingService.LocalBinder) iBinder;
             trainingService = binder.getService();
-            addTrainingListener((MainActivity)activity);
-            trainingService.handleTraining(connection, userLocation);
+            addTrainingListener();
+            trainingService.handleTraining(connection, userLocation, new Date(), trainingType);
         }
 
         @Override

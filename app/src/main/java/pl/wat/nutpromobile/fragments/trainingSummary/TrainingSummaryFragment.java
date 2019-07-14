@@ -29,6 +29,15 @@ public class TrainingSummaryFragment extends Fragment {
     @BindView(R.id.trainingStopTime)
     TextView trainingStopTimeTextView;
 
+    @BindView(R.id.trainingAverageSpeed)
+    TextView trainingAverageSpeed;
+
+    @BindView(R.id.trainingDistance)
+    TextView trainingDistance;
+
+    @BindView(R.id.trainingType)
+    TextView trainingType;
+
     private TrainingSummaryViewModel trainingSummaryViewModel;
 
     public TrainingSummaryFragment() {
@@ -61,5 +70,8 @@ public class TrainingSummaryFragment extends Fragment {
     private void setTrainingDataToView(TrainingSummaryRow trainingSummaryRow) {
         trainingStartTimeTextView.setText(trainingSummaryRow.getStartTrainingTime());
         trainingStopTimeTextView.setText(trainingSummaryRow.getStopTrainingTime());
+        trainingAverageSpeed.setText(String.valueOf(trainingSummaryRow.getAverageSpeed()));
+        trainingType.setText(trainingSummaryRow.getTrainingType());
+        trainingDistance.setText(String.valueOf(trainingSummaryRow.getDistance()));
     }
 }

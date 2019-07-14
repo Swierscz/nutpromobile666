@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="training_type_array">
+        <item>Bieg</item>
+        <item>Rower</item>
+        <item>Pływanie</item>
+        <item>Spacer</item>
+    </string-array>
+</resources>

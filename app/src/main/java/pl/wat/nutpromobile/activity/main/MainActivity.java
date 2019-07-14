@@ -25,8 +25,7 @@ import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListe
 import pl.wat.nutpromobile.model.TrainingData;
 import pl.wat.nutpromobile.util.NotificationCreator;
 
-public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener,
-        OnTrainingFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener, TrainingListener {
+public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener {
     public final static String TAG = "Custom: " + MainActivity.class.getSimpleName();
     public static final String INTENT_FIRST_LAUNCH = "pl.wat.nutpromobile.MainActivity.FIRST_LAUNCH";
 
@@ -38,7 +37,8 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     private Permission permission;
     private PreferencesManager preferencesManager;
 
-    private Training training;
+    // DAGGER
+    public Training training;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,37 +86,19 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
 
     private void checkIfIsFirstLaunchAndNavigate() {
         Intent intent = getIntent();
-        Boolean firstLunch = intent.getBooleanExtra(MainActivity.INTENT_FIRST_LAUNCH, true);
+        Boolean firstLunch = intent.getBooleanExtra(MainActivity.INTENT_FIRST_LAUNCH, false);
         if (firstLunch) {
             Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.connection);
+            intent.removeExtra(MainActivity.INTENT_FIRST_LAUNCH);
         }
-    }
-
-    @Override
-    public void startTraining() {
-        System.out.println("Activity START Click");
-        training.startTraining();
-    }
-
-    @Override
-    public void stopTraining() {
-        System.out.println("Activity STOP Click");
-        initStopTraining();
     }
 
     @Override
     protected void onDestroy() {
         Log.i(TAG, TAG + " destroyed");
-        initStopTraining();
         super.onDestroy();
     }
 
-    private void initStopTraining() {
-        if (training != null) {
-            training.removeTrainingListener();
-            training.stopTraining();
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -126,10 +108,5 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         preferencesManager.setChangePreferencesBehaviours(sharedPreferences, key);
-    }
-
-    @Override
-    public void onTrainingDataProcessed(TrainingData trainingData) {
-        System.out.println(trainingData.getDistance());
     }
 }

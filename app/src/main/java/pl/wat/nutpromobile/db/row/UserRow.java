@@ -4,24 +4,27 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import lombok.Data;
+
 @Entity
+@Data
 public class UserRow {
 
     @PrimaryKey
     public int uid;
 
     @ColumnInfo(name = "first_name")
-    public String firstName;
+    private String firstName;
 
     @ColumnInfo(name = "last_name")
-    public String lastName;
+    private String lastName;
 
     @ColumnInfo(name = "age")
-    public int age;
+    private int age;
 
     @ColumnInfo(name = "height")
-    public int height;
+    private int height;
 
     @ColumnInfo(name = "login")
-    public String login;
+    private String login;
 }

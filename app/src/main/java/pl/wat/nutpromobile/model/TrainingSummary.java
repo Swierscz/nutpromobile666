@@ -10,7 +10,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrainingSummary {
+
+    public int tsrid;
+
+    private String trainingType;
+
     private Date startTrainingTime;
+
     private Date stopTrainingTime;
+
+    private float distance;
+
+    private float averageSpeed;
 
 }
