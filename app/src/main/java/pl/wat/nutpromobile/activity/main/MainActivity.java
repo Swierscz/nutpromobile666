@@ -1,11 +1,8 @@
 package pl.wat.nutpromobile.activity.main;
 
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -16,18 +13,19 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.sql.Connection;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pl.wat.nutpromobile.R;
+import pl.wat.nutpromobile.features.ble.BluetoothConnection;
 import pl.wat.nutpromobile.features.location.UserLocation;
+import pl.wat.nutpromobile.features.service.MyNotification;
 import pl.wat.nutpromobile.features.training.Training;
 import pl.wat.nutpromobile.features.training.TrainingListener;
-import pl.wat.nutpromobile.model.TrainingData;
-import pl.wat.nutpromobile.util.NotificationCreator;
-import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.features.ble.Connection;
 import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
 import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
-import pl.wat.nutpromobile.features.training.TrainingService;
+import pl.wat.nutpromobile.model.TrainingData;
 
 public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener,
         OnTrainingFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener, TrainingListener {
@@ -37,13 +35,10 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     @BindView(R.id.navigation)
     BottomNavigationView navigation;
 
-    private Connection connection;
+    private BluetoothConnection bluetoothConnection;
     private UserLocation userLocation;
     private Permission permission;
     private PreferencesManager preferencesManager;
-
-    private TrainingService trainingService;
-
     private Training training;
 
     @Override
@@ -55,12 +50,14 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
         permission.startPermissionRequest();
         ButterKnife.bind(this);
         setupNavigation();
-        connection = new Connection(this, getLifecycle());
+        bluetoothConnection = new BluetoothConnection(this, getLifecycle());
         userLocation = new UserLocation(this);
-        training = new Training(this, connection, userLocation);
-        getLifecycle().addObserver(connection);
+        training = new Training(this, bluetoothConnection, userLocation);
+        getLifecycle().addObserver(userLocation);
+        getLifecycle().addObserver(bluetoothConnection);
+        getLifecycle().addObserver(training);
         preferencesManager = new PreferencesManager(this);
-        NotificationCreator.createNotificationChannel(this);
+        MyNotification.createNotificationChannel(this);
     }
 
 
@@ -80,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     }
 
     @Override
-    public Connection getConnection() {
-        return connection;
+    public BluetoothConnection getBluetoothConnection() {
+        return bluetoothConnection;
     }
 
 
@@ -92,36 +89,22 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
 
     private void checkIfIsFirstLaunchAndNavigate() {
         Intent intent = getIntent();
-        Boolean firstLunch = intent.getBooleanExtra(MainActivity.INTENT_FIRST_LAUNCH, true);
+        boolean firstLunch = intent.getBooleanExtra(MainActivity.INTENT_FIRST_LAUNCH, true);
         if (firstLunch) {
-            Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.connection);
+            Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.bluetoothConnection);
         }
     }
 
     @Override
-    public void startTraining() {
-        System.out.println("Activity START Click");
-        training.startTraining();
-    }
-
-    @Override
-    public void stopTraining() {
-        System.out.println("Activity STOP Click");
-        training.removeTrainingListener();
-        training.stopTraining();
-    }
-
-    @Override
     protected void onDestroy() {
-        Log.i(TAG, TAG +" destroyed");
-        training.removeTrainingListener();
-        training.stopTraining();
+        Log.i(TAG, TAG + " destroyed");
         super.onDestroy();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permission.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
     }
 
     @Override
@@ -133,4 +116,10 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
     public void onTrainingDataProcessed(TrainingData trainingData) {
         System.out.println(trainingData.getSensoricData().getRawData());
     }
+
+    @Override
+    public Training getTraining() {
+        return training;
+    }
+
 }

@@ -20,8 +20,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
+import pl.wat.nutpromobile.features.service.MyNotification;
 import pl.wat.nutpromobile.model.SensoricData;
-import pl.wat.nutpromobile.util.NotificationCreator;
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
@@ -35,38 +35,30 @@ public class BluetoothLeService extends Service {
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
     private int mConnectionState = STATE_DISCONNECTED;
-    private ConnectionListener connectionListener;
+    private BluetoothConnectionListener bluetoothConnectionListener;
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
 
-
-    public final static String STOP_SERVICE = "stop_bluetooth_le_service";
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
             "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
-    public final static String ACTION_DATA_AVAILABLE =
-            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_DATA =
-            "com.example.bluetooth.le.EXTRA_DATA";
-
-    public static final int BLE_SERVICE_ID = 10202;
-    public static boolean IS_STARTED = false;
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if ("stop".equals(intent.getAction())) {
-            Log.d(TAG, "called to cancel service");
-            stopSelf();
-        } else {
-            Log.i(TAG, TAG + " foreground started");
-            startForeground(NotificationCreator.getNotificationId(), NotificationCreator.getNotification(getApplicationContext()));
-            IS_STARTED = true;
+        if (intent != null) {
+            if (MyNotification.Action.END.toString().equals(intent.getAction())) {
+                Log.i(TAG, TAG + " foreground stop triggered");
+                stopForeground(true);
+            } else if (MyNotification.Action.START.toString().equals(intent.getAction())) {
+                Log.i(TAG, TAG + " foreground start triggered");
+                startForeground(MyNotification.getNotificationId(), MyNotification.getInstance().getNotification(getApplicationContext(), true));
+            }
         }
         return START_STICKY;
     }
@@ -80,7 +72,7 @@ public class BluetoothLeService extends Service {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 intentAction = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
-                broadcastUpdate(intentAction);
+                sendData(intentAction);
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:" +
@@ -90,14 +82,14 @@ public class BluetoothLeService extends Service {
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
-                broadcastUpdate(intentAction);
+                sendData(intentAction);
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+                sendData(ACTION_GATT_SERVICES_DISCOVERED);
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -109,7 +101,7 @@ public class BluetoothLeService extends Service {
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 // filterReceivedData(new String(characteristic.getValue()));
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                sendData(characteristic);
             }
         }
 
@@ -117,52 +109,40 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             // filterReceivedData(new String(characteristic.getValue()));
-            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+            sendData(characteristic);
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-            if(status == BluetoothGatt.GATT_SUCCESS){
+            if (status == BluetoothGatt.GATT_SUCCESS) {
                 Log.i(TAG, "Characteristic write succed");
-            }else if(status == BluetoothGatt.GATT_FAILURE){
+            } else if (status == BluetoothGatt.GATT_FAILURE) {
                 Log.i(TAG, "Characteristic write failed");
-            }else{
+            } else {
                 Log.i(TAG, "Something bad happen during characteristic write");
             }
         }
     };
 
-    private void broadcastUpdate(final String action) {
+    private void sendData(final String action) {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
     }
 
-    private StringBuilder sbFRD = new StringBuilder();
 
-    private void broadcastDataToConnectionListener(String data) {
-        if (connectionListener != null)
-            connectionListener.onDataReceived(new SensoricData(data));
+    private void sendDataByConnectionListener(String data) {
+        if (bluetoothConnectionListener != null)
+            bluetoothConnectionListener.onDataReceived(new SensoricData(data));
     }
 
-    private void broadcastUpdate(final String action,
-                                 final BluetoothGattCharacteristic characteristic) {
-            final Intent intent = new Intent(action);
-            // For all other profiles, writes the data formatted in HEX.
-            final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 0) {
-                broadcastDataToConnectionListener(new String(data));
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-                final StringBuilder stringBuilder2 = new StringBuilder(data.length);
-                for (byte byteChar : data) {
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                    stringBuilder2.append((char) (byteChar & 0xFF) + " | ");
+    private void sendData(final BluetoothGattCharacteristic characteristic) {
 
-                }
-                intent.putExtra(EXTRA_DATA, "data: " + new String(data) + "\n" + "interpretation: " + stringBuilder.toString());
-
-            }
-            sendBroadcast(intent);
+        // For all other profiles, writes the data formatted in HEX.
+        final byte[] data = characteristic.getValue();
+        if (data != null && data.length > 0) {
+            sendDataByConnectionListener(new String(data));
+        }
     }
 
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic,
@@ -194,6 +174,7 @@ public class BluetoothLeService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.i(TAG, TAG + " binded");
         return mBinder;
     }
 
@@ -202,6 +183,7 @@ public class BluetoothLeService extends Service {
         // After using a given device, you should make sure that BluetoothGatt.close() is called
         // such that resources are cleaned up properly.  In this particular example, close() is
         // invoked when the UI is disconnected from the Service.
+        Log.i(TAG, TAG + " unbounded");
         close();
         return super.onUnbind(intent);
     }
@@ -215,7 +197,6 @@ public class BluetoothLeService extends Service {
      */
 
 //endregion
-
     public boolean initialize() {
         // For API level 18 and above, get a reference to BluetoothAdapter through
         // BluetoothManager.
@@ -240,11 +221,10 @@ public class BluetoothLeService extends Service {
      * Connects to the GATT server hosted on the Bluetooth LE device.
      *
      * @param address The device address of the destination device.
-     *
      * @return Return true if the connection is initiated successfully. The connection result
-     *         is reported asynchronously through the
-     *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     *         callback.
+     * is reported asynchronously through the
+     * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
+     * callback.
      */
     public boolean connect(final String address) {
         if (mBluetoothAdapter == null || address == null) {
@@ -323,7 +303,7 @@ public class BluetoothLeService extends Service {
      * Enables or disables notification on a give characteristic.
      *
      * @param characteristic Characteristic to act on.
-     * @param enabled If true, enable notification.  False otherwise.
+     * @param enabled        If true, enable notification.  False otherwise.
      */
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
@@ -345,18 +325,32 @@ public class BluetoothLeService extends Service {
         return mBluetoothGatt.getServices();
     }
 
-    public void addConnectionListener(ConnectionListener connectionListener) {
-        this.connectionListener = connectionListener;
+    public void addConnectionListener(BluetoothConnectionListener bluetoothConnectionListener) {
+        this.bluetoothConnectionListener = bluetoothConnectionListener;
     }
 
     public void removeConnectionListener() {
-        connectionListener = null;
+        bluetoothConnectionListener = null;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        removeConnectionListener();
         Log.i(TAG, TAG + " destroyed");
-        IS_STARTED = false;
     }
 }
+
+
+/*
+*
+*           final StringBuilder stringBuilder = new StringBuilder(data.length);
+                final StringBuilder stringBuilder2 = new StringBuilder(data.length);
+                for (byte byteChar : data) {
+                    stringBuilder.append(String.format("%02X ", byteChar));
+                    stringBuilder2.append((char) (byteChar & 0xFF) + " | ");
+
+                }
+*
+*
+* */

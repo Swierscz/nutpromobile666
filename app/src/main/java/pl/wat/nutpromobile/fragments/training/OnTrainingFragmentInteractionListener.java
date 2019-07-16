@@ -1,8 +1,7 @@
 package pl.wat.nutpromobile.fragments.training;
 
-import pl.wat.nutpromobile.features.ble.Connection;
+import pl.wat.nutpromobile.features.training.Training;
 
 public interface OnTrainingFragmentInteractionListener {
-    void startTraining();
-    void stopTraining();
+    Training getTraining();
 }

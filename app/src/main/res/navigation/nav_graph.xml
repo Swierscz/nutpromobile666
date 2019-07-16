@@ -28,7 +28,7 @@
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
     <fragment
-        android:id="@+id/connection"
+        android:id="@+id/bluetoothConnection"
         android:name="pl.wat.nutpromobile.fragments.connection.FragmentConnection"
         android:label="fragment_connection"
         tools:layout="@layout/fragment_connection" />
@@ -43,6 +43,6 @@
             app:destination="@id/settings" />
         <action
             android:id="@+id/action_more_to_connection"
-            app:destination="@id/connection" />
+            app:destination="@id/bluetoothConnection" />
     </fragment>
 </navigation>
