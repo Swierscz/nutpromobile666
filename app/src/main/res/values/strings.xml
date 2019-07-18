@@ -9,7 +9,13 @@
     <string name="login_title_age">Wiek</string>
     <string name="login_title_height">Wzrost</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="label_training_fragment_distance">Dystans</string>
+    <string name="label_training_fragment_timer">Czas</string>
+    <string name="label_training_fragment_start_time">Czas rozpoczęcia</string>
+    <string name="label_training_fragment_stop_time">Czas zakończenia</string>
+    <string name="label_training_fragment_speed">Prędkość</string>
+    <string name="label_training_fragment_average_speed">Srednia prędkość</string>
+    <string name="label_training_fragment_data">Dane</string>
+    <string name="label_training_fragment_tpe">Typ treningu</string>
 
 </resources>

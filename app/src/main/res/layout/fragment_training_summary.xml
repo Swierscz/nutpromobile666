@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.trainingSummary.TrainingSummaryFragment">
+
+    <TextView
+        android:id="@+id/trainingStartTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@+id/trainingStartTimeLabel"
+        app:layout_constraintTop_toBottomOf="@+id/trainingStartTimeLabel" />
+
+    <TextView
+        android:id="@+id/trainingStopTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@+id/trainingStopTimeLabel"
+        app:layout_constraintTop_toBottomOf="@+id/trainingStopTimeLabel" />
+
+    <TextView
+        android:id="@+id/trainingStartTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="50dp"
+        android:text="@string/label_training_fragment_start_time"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/trainingType" />
+
+    <TextView
+        android:id="@+id/trainingStopTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/label_training_fragment_stop_time"
+        app:layout_constraintStart_toStartOf="@+id/trainingStartTime"
+        app:layout_constraintTop_toBottomOf="@+id/trainingStartTime" />
+
+    <TextView
+        android:id="@+id/trainingType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:text="TextView"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/trainingDistanceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/label_training_fragment_distance"
+        app:layout_constraintStart_toStartOf="@+id/trainingStopTime"
+        app:layout_constraintTop_toBottomOf="@+id/trainingStopTime" />
+
+    <TextView
+        android:id="@+id/trainingDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@+id/trainingDistanceLabel"
+        app:layout_constraintTop_toBottomOf="@+id/trainingDistanceLabel" />
+
+    <TextView
+        android:id="@+id/trainingAverageSpeedLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/label_training_fragment_average_speed"
+        app:layout_constraintStart_toStartOf="@+id/trainingDistance"
+        app:layout_constraintTop_toBottomOf="@+id/trainingDistance" />
+
+    <TextView
+        android:id="@+id/trainingAverageSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@+id/trainingAverageSpeedLabel"
+        app:layout_constraintTop_toBottomOf="@+id/trainingAverageSpeedLabel" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,6 +7,13 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 
+import java.util.Date;
+
+import pl.wat.nutpromobile.NutproMobileApp;
+import pl.wat.nutpromobile.db.repository.TrainingSummaryRepository;
+import pl.wat.nutpromobile.db.row.TrainingSummaryRow;
+import pl.wat.nutpromobile.features.ble.Connection;
+
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -21,6 +28,8 @@ import pl.wat.nutpromobile.features.location.UserLocation;
 import pl.wat.nutpromobile.features.location.UserLocationService;
 import pl.wat.nutpromobile.features.service.ServiceManager;
 import pl.wat.nutpromobile.features.service.ServiceUtil;
+import pl.wat.nutpromobile.model.TrainingSummary;
+import pl.wat.nutpromobile.model.TrainingType;
 
 public class Training implements LifecycleObserver, ServiceManager {
     private final static String TAG = "Custom: " + Training.class.getSimpleName();
@@ -44,49 +53,102 @@ public class Training implements LifecycleObserver, ServiceManager {
     }
 
     public Training(Activity activity, Lifecycle lifecycle, BluetoothConnection bluetoothConnection, UserLocation userLocation) {
-        this.activity = activity;
-        this.bluetoothConnection = bluetoothConnection;
-        this.userLocation = userLocation;
-        this.lifecycle = lifecycle;
+        private TrainingSummaryRepository trainingSummaryRepository;
+
+        private TrainingSummary trainingSummary;
+
+        private TrainingListener trainingListener;
+
+        private TrainingType trainingType;
+
+    public Training(Activity activity, Connection connection, UserLocation userLocation) {
+            this.activity = activity;
+            this.bluetoothConnection = bluetoothConnection;
+            this.userLocation = userLocation;
+            this.trainingSummaryRepository = ((NutproMobileApp) activity.getApplication()).repositoryProvider
+                    .getTrainingSummaryRepositoryInstance((NutproMobileApp) activity.getApplication());
+            this.lifecycle = lifecycle;
+        }
+
+        public void startTraining (TrainingType trainingType){
+            this.trainingType = trainingType;
+            initTrainingService();
+            // initTrainingMonitoring();
+        }
+
+        public void stopTraining () {
+            saveTraining();
+            activity.stopService(new Intent(activity, TrainingService.class));
+            ServiceUtil.stopForegroundService(activity, TrainingService.class);
+            ServiceUtil.stopForegroundService(activity, BluetoothLeService.class);
+            ServiceUtil.stopForegroundService(activity, UserLocationService.class);
+            unbindService();
+        }
+
+
+        public void setTrainingListener (TrainingListener trainingListener){
+            this.trainingListener = trainingListener;
+        }
+
+        private void initTrainingService () {
+            ServiceUtil.startForegroundService(activity, TrainingService.class);
+            ServiceUtil.startForegroundService(activity, BluetoothLeService.class);
+            ServiceUtil.startForegroundService(activity, UserLocationService.class);
+        }
+
+    private void saveTraining() {/*
+        if (trainingSummary != null) {
+            trainingSummary.setStopTrainingTime(new Date());
+            TrainingSummaryRow trainingSummaryRow = new TrainingSummaryRow();
+            trainingSummaryRow.setStartTrainingTime(trainingSummary.getStartTrainingTime().toString());
+            trainingSummaryRow.setStopTrainingTime(trainingSummary.getStopTrainingTime().toString());
+            trainingSummaryRepository.insertTrainingSummary(trainingSummaryRow);
+        }*/
+        trainingSummary = trainingService.getTrainingSummaryData();
+        TrainingSummaryRow trainingSummaryRow = new TrainingSummaryRow();
+        trainingSummaryRow.setStartTrainingTime(trainingSummary.getStartTrainingTime().toString());
+        trainingSummaryRow.setStopTrainingTime(trainingSummary.getStopTrainingTime().toString());
+        trainingSummaryRow.setDistance(trainingSummary.getDistance());
+        trainingSummaryRow.setAverageSpeed(trainingSummary.getAverageSpeed());
+        trainingSummaryRow.setTrainingType(trainingType.toString());
+        trainingSummaryRepository.insertTrainingSummary(trainingSummaryRow);
     }
 
-    public void startTraining() {
-        initTraining();
+    private void initTrainingMonitoring() {
+        trainingSummary = new TrainingSummary();
+        trainingSummary.setStartTrainingTime(new Date());
     }
 
-    public void stopTraining() {
-        ServiceUtil.stopForegroundService(activity, TrainingService.class);
-        ServiceUtil.stopForegroundService(activity, BluetoothLeService.class);
-        ServiceUtil.stopForegroundService(activity, UserLocationService.class);
-        unbindService();
+    private void addTrainingListener() {
+        if (trainingService != null) {
+            trainingService.addTrainingListener(trainingListener);
+        }
+        }
+
+    public void removeTrainingListener() {
+        if (trainingService != null) {
+            trainingService.removeTrainingListener();
+        }
     }
 
-
-
-    private void initTraining() {
-        ServiceUtil.startForegroundService(activity, TrainingService.class);
-        ServiceUtil.startForegroundService(activity, BluetoothLeService.class);
-        ServiceUtil.startForegroundService(activity, UserLocationService.class);
-    }
-
-    public void addTrainingListener(TrainingListener trainingListener) {
-        trainingService.addTrainingListener(trainingListener);
-    }
-
-    private ServiceConnection trainingServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+        private ServiceConnection trainingServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             trainingService = ((TrainingService.LocalBinder) iBinder).getService();
             shouldUnbindTrainingService = true;
             addTrainingListener((MainActivity) activity);
             trainingService.handleTraining(bluetoothConnection, userLocation);
-        }
+            TrainingService.LocalBinder binder = (TrainingService.LocalBinder) iBinder;
+            trainingService = binder.getService();
+            addTrainingListener();
+            trainingService.handleTraining(connection, userLocation, new Date(), trainingType);
+            }
 
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            trainingService = null;
-        }
-    };
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+                trainingService = null;
+            }
+        };
 
 
 
@@ -116,4 +178,4 @@ public class Training implements LifecycleObserver, ServiceManager {
             shouldUnbindTrainingService = false;
         }
     }
-}
+    }

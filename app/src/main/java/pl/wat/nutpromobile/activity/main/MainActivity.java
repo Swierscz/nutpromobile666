@@ -18,6 +18,8 @@ import java.sql.Connection;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.wat.nutpromobile.R;
+import pl.wat.nutpromobile.features.ble.Connection;
+import pl.wat.nutpromobile.R;
 import pl.wat.nutpromobile.features.ble.BluetoothConnection;
 import pl.wat.nutpromobile.features.location.UserLocation;
 import pl.wat.nutpromobile.features.service.MyNotification;
@@ -26,9 +28,12 @@ import pl.wat.nutpromobile.features.training.TrainingListener;
 import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
 import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
 import pl.wat.nutpromobile.model.TrainingData;
+import pl.wat.nutpromobile.util.NotificationCreator;
+import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
+import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
+import pl.wat.nutpromobile.model.TrainingData;
 
-public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener,
-        OnTrainingFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener, TrainingListener {
+public class MainActivity extends AppCompatActivity implements OnConnectionFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener {
     public final static String TAG = "Custom: " + MainActivity.class.getSimpleName();
     public static final String INTENT_FIRST_LAUNCH = "pl.wat.nutpromobile.MainActivity.FIRST_LAUNCH";
 
@@ -92,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
         boolean firstLunch = intent.getBooleanExtra(MainActivity.INTENT_FIRST_LAUNCH, true);
         if (firstLunch) {
             Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.bluetoothConnection);
+            Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.connection);
+            intent.removeExtra(MainActivity.INTENT_FIRST_LAUNCH);
         }
     }
 
@@ -100,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFragm
         Log.i(TAG, TAG + " destroyed");
         super.onDestroy();
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

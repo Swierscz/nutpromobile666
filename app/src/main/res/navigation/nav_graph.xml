@@ -21,7 +21,11 @@
         android:id="@+id/training_history"
         android:name="pl.wat.nutpromobile.fragments.trainingsHistory.TrainingsHistoryFragment"
         android:label="fragment_trainings_history"
-        tools:layout="@layout/fragment_trainings_history" />
+        tools:layout="@layout/fragment_trainings_history" >
+        <action
+            android:id="@+id/action_training_history_to_trainingSummaryFragment"
+            app:destination="@id/training_summary" />
+    </fragment>
     <fragment
         android:id="@+id/profile"
         android:name="pl.wat.nutpromobile.fragments.profile.ProfileFragment"
@@ -45,4 +49,9 @@
             android:id="@+id/action_more_to_connection"
             app:destination="@id/bluetoothConnection" />
     </fragment>
+    <fragment
+        android:id="@+id/training_summary"
+        android:name="pl.wat.nutpromobile.fragments.trainingSummary.TrainingSummaryFragment"
+        android:label="fragment_training_summary"
+        tools:layout="@layout/fragment_training_summary" />
 </navigation>
