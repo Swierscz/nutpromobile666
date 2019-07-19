@@ -135,9 +135,6 @@ public class Training implements LifecycleObserver, ServiceManager {
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             trainingService = ((TrainingService.LocalBinder) iBinder).getService();
             shouldUnbindTrainingService = true;
-            trainingService.handleTraining(bluetoothConnection, userLocation, new Date(), trainingType);
-            TrainingService.LocalBinder binder = (TrainingService.LocalBinder) iBinder;
-            trainingService = binder.getService();
             addTrainingListener();
             trainingService.handleTraining(bluetoothConnection, userLocation, new Date(), trainingType);
         }
