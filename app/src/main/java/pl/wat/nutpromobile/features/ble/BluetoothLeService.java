@@ -141,6 +141,7 @@ public class BluetoothLeService extends Service {
         // For all other profiles, writes the data formatted in HEX.
         final byte[] data = characteristic.getValue();
         if (data != null && data.length > 0) {
+            Log.i(TAG, new String(data));
             sendDataByConnectionListener(new String(data));
         }
     }
