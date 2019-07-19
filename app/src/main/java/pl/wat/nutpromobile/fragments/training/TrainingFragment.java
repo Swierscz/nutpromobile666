@@ -133,9 +133,7 @@ public class TrainingFragment extends Fragment implements TrainingListener {
     @OnClick(R.id.startTrainingButton)
     void onStartButtonClick(View view) {
         Log.i(TAG, "Training start button pressed");
-        activityInteraction.getTraining().startTraining(trainingType);
         if (trainingType != null) {
-            System.out.println("START");
             training.setTrainingListener(this);
             training.startTraining(trainingType);
         } else {
@@ -146,8 +144,6 @@ public class TrainingFragment extends Fragment implements TrainingListener {
     @OnClick(R.id.stopTrainingButton)
     void onStopButtonClick(View view) {
         Log.i(TAG, "Training stop button pressed");
-        activityInteraction.getTraining().stopTraining();
-        System.out.println("STOP");
         initStopTraining();
     }
 
