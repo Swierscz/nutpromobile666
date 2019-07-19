@@ -30,4 +30,52 @@ public class TrainingSummaryRow implements Serializable {
 
     @ColumnInfo(name = "average_speed")
     private float averageSpeed;
+
+    public int getTsrid() {
+        return tsrid;
+    }
+
+    public void setTsrid(int tsrid) {
+        this.tsrid = tsrid;
+    }
+
+    public String getTrainingType() {
+        return trainingType;
+    }
+
+    public void setTrainingType(String trainingType) {
+        this.trainingType = trainingType;
+    }
+
+    public String getStartTrainingTime() {
+        return startTrainingTime;
+    }
+
+    public void setStartTrainingTime(String startTrainingTime) {
+        this.startTrainingTime = startTrainingTime;
+    }
+
+    public String getStopTrainingTime() {
+        return stopTrainingTime;
+    }
+
+    public void setStopTrainingTime(String stopTrainingTime) {
+        this.stopTrainingTime = stopTrainingTime;
+    }
+
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
+    }
+
+    public float getAverageSpeed() {
+        return averageSpeed;
+    }
+
+    public void setAverageSpeed(float averageSpeed) {
+        this.averageSpeed = averageSpeed;
+    }
 }

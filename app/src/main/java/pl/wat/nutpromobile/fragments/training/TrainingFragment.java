@@ -56,6 +56,8 @@ public class TrainingFragment extends Fragment implements TrainingListener {
     @BindView(R.id.trainingTypeSpinner)
     AppCompatSpinner trainingTypeSpinner;
 
+    private OnTrainingFragmentInteractionListener activityInteraction;
+
     private TrainingFragmentViewModel viewModel;
 
     private Training training;
@@ -69,15 +71,21 @@ public class TrainingFragment extends Fragment implements TrainingListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        getActivity().unregisterReceiver(broadcastReceiver);
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getContext() instanceof OnTrainingFragmentInteractionListener) {
+            activityInteraction = (OnTrainingFragmentInteractionListener) getContext();
+        } else {
+            throw new RuntimeException(getContext().toString()
+                    + " must implement OnTrainingFragmentInteractionListener");
+        }
+
+
         viewModel = ViewModelProviders.of(this).get(TrainingFragmentViewModel.class);
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter("test"));
-        training = ((MainActivity)getActivity()).training;
+        training = activityInteraction.getTraining();
     }
 
     @Nullable
@@ -125,7 +133,7 @@ public class TrainingFragment extends Fragment implements TrainingListener {
     @OnClick(R.id.startTrainingButton)
     void onStartButtonClick(View view) {
         Log.i(TAG, "Training start button pressed");
-        activityInteraction.getTraining().startTraining();
+        activityInteraction.getTraining().startTraining(trainingType);
         if (trainingType != null) {
             System.out.println("START");
             training.setTrainingListener(this);

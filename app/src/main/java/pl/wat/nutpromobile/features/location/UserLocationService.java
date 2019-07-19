@@ -17,7 +17,7 @@ import pl.wat.nutpromobile.features.service.MyNotification;
 
 public class UserLocationService extends Service implements LocationListener {
 
-    public final static String TAG = "Custom: " + UserLocationService.class.getSimpleName();
+    public final static String TAG = UserLocationService.class.getSimpleName();
 
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // zmiana co 10 m
     private static final long MIN_TIME_BW_UPDATES = 1000 * 1;    // zmiana co minute

@@ -8,7 +8,7 @@ import pl.wat.nutpromobile.db.dao.UserDao;
 import pl.wat.nutpromobile.db.row.TrainingSummaryRow;
 import pl.wat.nutpromobile.db.row.UserRow;
 
-@Database(entities = {TrainingSummaryRow.class, UserRow.class}, version = 1)
+@Database(entities = {TrainingSummaryRow.class, UserRow.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract TrainingSummaryDao trainingSummaryDao();
     public abstract UserDao userDao();

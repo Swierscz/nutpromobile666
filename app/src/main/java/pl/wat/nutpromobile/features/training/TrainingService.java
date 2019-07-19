@@ -9,7 +9,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -18,16 +17,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import pl.wat.nutpromobile.features.ble.BluetoothConnection;
 import pl.wat.nutpromobile.features.ble.BluetoothConnectionListener;
 import pl.wat.nutpromobile.features.location.UserLocation;
 import pl.wat.nutpromobile.features.location.UserLocationListener;
+import pl.wat.nutpromobile.features.service.MyNotification;
 import pl.wat.nutpromobile.model.SensoricData;
 import pl.wat.nutpromobile.model.TrainingData;
-import pl.wat.nutpromobile.features.service.MyNotification;
 import pl.wat.nutpromobile.model.TrainingSummary;
 import pl.wat.nutpromobile.model.TrainingType;
 
@@ -98,12 +95,9 @@ public class TrainingService extends Service implements UserLocationListener, Bl
                 MyNotification.getInstance().changeNotificationToPauseButton(context);
             } else if (MyNotification.Action.END.toString().equals(intent.getAction())) {
                 Log.i(TAG, "End training triggered");
-                shouldWork = false;
-                handler.removeCallbacks(runnable);
                 stopSelf();
             } else {
-                handler.postDelayed(runnable, 1000);
-                Log.i(TAG, TAG + " foreground started");
+                Log.i(TAG, TAG + "foreground start triggered");
                 mBinder = new LocalBinder();
                 context = getBaseContext();
                 timeToSpeedMeasurement = new Date();
@@ -115,7 +109,7 @@ public class TrainingService extends Service implements UserLocationListener, Bl
                 startForeground(MyNotification.getNotificationId(), MyNotification.getInstance().getNotification(getApplicationContext(), true));
             }
 
-
+        }
             return START_STICKY;
         }
 
