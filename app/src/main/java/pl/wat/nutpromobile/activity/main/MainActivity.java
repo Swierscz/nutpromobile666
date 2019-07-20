@@ -17,19 +17,17 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import pl.wat.nutpromobile.NutproMobileApp;
 import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.di.components.ActivityComponent;
-import pl.wat.nutpromobile.di.components.DaggerActivityComponent;
-import pl.wat.nutpromobile.di.modules.ActivityModule;
+import pl.wat.nutpromobile.di.BaseActivity;
 import pl.wat.nutpromobile.features.ble.BluetoothConnection;
 import pl.wat.nutpromobile.features.location.UserLocation;
 import pl.wat.nutpromobile.features.service.MyNotification;
 import pl.wat.nutpromobile.features.training.Training;
 import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
 import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
+import pl.wat.nutpromobile.model.TrainingData;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends BaseActivity<MainActivityViewModel>
         implements OnConnectionFragmentInteractionListener
         , OnTrainingFragmentInteractionListener
         , SharedPreferences.OnSharedPreferenceChangeListener {
@@ -44,35 +42,29 @@ public class MainActivity extends AppCompatActivity
     @Inject Permission permission;
     @Inject PreferencesManager preferencesManager;
     @Inject Training training;
-    private ActivityComponent activityComponent;
+
+    @Inject
+    MainActivityViewModel viewModel;
+
+    @Override
+    public MainActivityViewModel getViewModel() {
+        return viewModel;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, TAG + " created");
         setContentView(R.layout.activity_main);
-
-        activityComponent = DaggerActivityComponent
-                .builder()
-                .activityModule(new ActivityModule(this))
-                .applicationComponent(((NutproMobileApp)getApplication())
-                        .getApplicationComponent())
-                .build();
-        activityComponent.inject(this);
-
         permission.startPermissionRequest();
         ButterKnife.bind(this);
         setupNavigation();
-        addLifecycleObservers();
-        MyNotification.createNotificationChannel(this);
-    }
-
-
-    public void addLifecycleObservers(){
         getLifecycle().addObserver(userLocation);
         getLifecycle().addObserver(bluetoothConnection);
         getLifecycle().addObserver(training);
+        MyNotification.createNotificationChannel(this);
     }
+
 
     @Override
     protected void onStart() {

@@ -16,23 +16,19 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
-import javax.inject.Inject;
-
 import pl.wat.nutpromobile.R;
-import pl.wat.nutpromobile.activity.main.MainActivity;
 import pl.wat.nutpromobile.features.service.ServiceManager;
 
 public class BluetoothConnection implements LifecycleObserver, ServiceManager {
     private final static String TAG = "Custom: " + BluetoothConnection.class.getSimpleName();
-    private MainActivity currentActivity;
+    private Activity currentActivity;
     private BleScanner bleScanner;
     private BluetoothLeService bluetoothLeService;
     private CharacteristicManager characteristicManager;
     private String bluetoothAddress;
     private Lifecycle lifecycle;
 
-    @Inject
-    public BluetoothConnection(MainActivity activity, Lifecycle lifecycle) {
+    public BluetoothConnection(Activity activity, Lifecycle lifecycle) {
         currentActivity = activity;
         this.lifecycle = lifecycle;
         initConnection();

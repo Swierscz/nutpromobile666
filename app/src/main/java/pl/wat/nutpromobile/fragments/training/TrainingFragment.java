@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import butterknife.BindView;
@@ -28,6 +29,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import pl.wat.nutpromobile.R;
 import pl.wat.nutpromobile.activity.main.MainActivity;
+import pl.wat.nutpromobile.di.BaseFragment;
 import pl.wat.nutpromobile.features.training.Training;
 import pl.wat.nutpromobile.features.training.TrainingListener;
 import pl.wat.nutpromobile.fragments.connection.FragmentConnection;
@@ -38,7 +40,7 @@ import pl.wat.nutpromobile.model.TrainingType;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TrainingFragment extends Fragment implements TrainingListener {
+public class TrainingFragment extends BaseFragment<TrainingFragmentViewModel> implements TrainingListener {
     public static final String TAG = FragmentConnection.class.getSimpleName();
 
     @BindView(R.id.timerValueTextView)
@@ -177,5 +179,11 @@ public class TrainingFragment extends Fragment implements TrainingListener {
     @Override
     public void onSpeedChange(String speed) {
         speedValueTextView.setText(speed);
+    }
+
+    @Override
+    public TrainingFragmentViewModel getViewModel() {
+        viewModel  = ViewModelProviders.of(this).get(TrainingFragmentViewModel.class);
+        return viewModel;
     }
 }

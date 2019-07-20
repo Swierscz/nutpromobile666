@@ -7,13 +7,9 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
-import javax.inject.Inject;
-
 class PreferencesManager {
     private final static String TAG = PreferencesManager.class.getSimpleName();
     private MainActivity mainActivity;
-
-    @Inject
     PreferencesManager(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
         startPrefManage();

@@ -12,12 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import javax.inject.Inject;
-
 import pl.wat.nutpromobile.R;
 
 class Permission {
-    @Inject
     Permission(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
