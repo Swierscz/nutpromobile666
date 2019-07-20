@@ -12,6 +12,9 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
+import javax.inject.Inject;
+
+import pl.wat.nutpromobile.activity.main.MainActivity;
 import pl.wat.nutpromobile.features.service.ServiceManager;
 import pl.wat.nutpromobile.features.training.TrainingService;
 
@@ -20,18 +23,15 @@ public class UserLocation implements LifecycleObserver, ServiceManager {
     private final static String TAG = "Custom: " + UserLocation.class.getSimpleName();
 
     private UserLocationService userLocationService;
-    private Activity activity;
+    private MainActivity activity;
     private boolean shouldUnbindLocationService;
     private Lifecycle lifecycle;
 
-    public UserLocation(Activity activity) {
-        this.activity = activity;
-        initUserLocation();
-    }
-
-    public UserLocation(Activity activity, Lifecycle lifecycle) {
+    @Inject
+    public UserLocation(MainActivity activity, Lifecycle lifecycle) {
         this.activity = activity;
         this.lifecycle = lifecycle;
+        initUserLocation();
     }
 
     private void initUserLocation() {

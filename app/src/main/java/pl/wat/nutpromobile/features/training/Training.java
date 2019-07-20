@@ -12,6 +12,8 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import java.util.Date;
 
+import javax.inject.Inject;
+
 import pl.wat.nutpromobile.NutproMobileApp;
 import pl.wat.nutpromobile.activity.main.MainActivity;
 import pl.wat.nutpromobile.db.repository.TrainingSummaryRepository;
@@ -48,19 +50,12 @@ public class Training implements LifecycleObserver, ServiceManager {
 
     private TrainingType trainingType;
 
-    public Training(Activity activity, BluetoothConnection bluetoothConnection, UserLocation userLocation) {
+    @Inject
+    public Training(MainActivity activity, BluetoothConnection bluetoothConnection, UserLocation userLocation) {
         this.activity = activity;
         this.bluetoothConnection = bluetoothConnection;
         this.userLocation = userLocation;
-    }
-
-    public Training(Activity activity, Lifecycle lifecycle, BluetoothConnection bluetoothConnection, UserLocation userLocation) {
-        this.activity = activity;
-        this.bluetoothConnection = bluetoothConnection;
-        this.userLocation = userLocation;
-        this.trainingSummaryRepository = ((NutproMobileApp) activity.getApplication()).repositoryProvider
-                .getTrainingSummaryRepositoryInstance((NutproMobileApp) activity.getApplication());
-        this.lifecycle = lifecycle;
+        this.lifecycle = activity.getLifecycle();
     }
 
     public void startTraining(TrainingType trainingType) {

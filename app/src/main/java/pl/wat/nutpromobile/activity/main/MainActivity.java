@@ -13,16 +13,21 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pl.wat.nutpromobile.NutproMobileApp;
 import pl.wat.nutpromobile.R;
+import pl.wat.nutpromobile.di.components.ActivityComponent;
+import pl.wat.nutpromobile.di.components.DaggerActivityComponent;
+import pl.wat.nutpromobile.di.modules.ActivityModule;
 import pl.wat.nutpromobile.features.ble.BluetoothConnection;
 import pl.wat.nutpromobile.features.location.UserLocation;
 import pl.wat.nutpromobile.features.service.MyNotification;
 import pl.wat.nutpromobile.features.training.Training;
 import pl.wat.nutpromobile.fragments.connection.OnConnectionFragmentInteractionListener;
 import pl.wat.nutpromobile.fragments.training.OnTrainingFragmentInteractionListener;
-import pl.wat.nutpromobile.model.TrainingData;
 
 public class MainActivity extends AppCompatActivity
         implements OnConnectionFragmentInteractionListener
@@ -34,31 +39,40 @@ public class MainActivity extends AppCompatActivity
     @BindView(R.id.navigation)
     BottomNavigationView navigation;
 
-    private BluetoothConnection bluetoothConnection;
-    private UserLocation userLocation;
-    private Permission permission;
-    private PreferencesManager preferencesManager;
-    private Training training;
+    @Inject BluetoothConnection bluetoothConnection;
+    @Inject UserLocation userLocation;
+    @Inject Permission permission;
+    @Inject PreferencesManager preferencesManager;
+    @Inject Training training;
+    private ActivityComponent activityComponent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, TAG + " created");
         setContentView(R.layout.activity_main);
-        permission = new Permission(this);
+
+        activityComponent = DaggerActivityComponent
+                .builder()
+                .activityModule(new ActivityModule(this))
+                .applicationComponent(((NutproMobileApp)getApplication())
+                        .getApplicationComponent())
+                .build();
+        activityComponent.inject(this);
+
         permission.startPermissionRequest();
         ButterKnife.bind(this);
         setupNavigation();
-        bluetoothConnection = new BluetoothConnection(this, getLifecycle());
-        userLocation = new UserLocation(this);
-        training = new Training(this, bluetoothConnection, userLocation);
-        getLifecycle().addObserver(userLocation);
-        getLifecycle().addObserver(bluetoothConnection);
-        getLifecycle().addObserver(training);
-        preferencesManager = new PreferencesManager(this);
+        addLifecycleObservers();
         MyNotification.createNotificationChannel(this);
     }
 
+
+    public void addLifecycleObservers(){
+        getLifecycle().addObserver(userLocation);
+        getLifecycle().addObserver(bluetoothConnection);
+        getLifecycle().addObserver(training);
+    }
 
     @Override
     protected void onStart() {
